@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-interface GedcomNode {
+export interface GedcomNode {
   level: number;
   tag: string;
   pointer?: string;
@@ -203,3 +203,30 @@ export function transformGedcomToEditableTree(gedcomNodes: GedcomNode[]): Editab
   const rootNode = buildTree(rootId);
   return rootNode!;
 }
+
+const formatGedcomNode = (node: GedcomNode, level: number = 0): string => {
+  let line = `${level}`;
+  if (node.pointer) {
+    line += ` @${node.pointer}@`;
+  }
+  line += ` ${node.tag}`;
+  if (node.data) {
+    line += ` ${node.data}`;
+  }
+  line += '\n';
+  if (node.children) {
+    node.children.forEach((child) => {
+      line += formatGedcomNode(child, level + 1);
+    });
+  }
+  return line;
+};
+
+export const exportGedcomData = (data: GedcomNode[]): string => {
+  // Implement a function to convert GedcomNode[] back to GEDCOM string format
+  let gedcomString = '';
+  data.forEach((node) => {
+    gedcomString += formatGedcomNode(node);
+  });
+  return gedcomString;
+};

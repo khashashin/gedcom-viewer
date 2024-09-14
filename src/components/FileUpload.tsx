@@ -22,7 +22,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-screen" style={{ height: "calc(100vh - 56px)" }}>
       <div className="grid w-full max-w-sm items-center gap-1.5">
         <Label htmlFor="GEDCOM">Upload GEDCOM File</Label>
         <Input id="GEDCOM" type="file" onChange={handleFileChange} />

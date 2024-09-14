@@ -8,6 +8,7 @@ const SimpleView: React.FC = () => {
 
   const handleFileLoaded = (content: string) => {
     const gedcomNodes = parseGedcom(content);
+    console.log(gedcomNodes);
     const tree = transformGedcomToTree(gedcomNodes);
     setTreeData(tree);
   };
