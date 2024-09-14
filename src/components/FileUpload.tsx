@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from './ui/button';
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface FileUploadProps {
   onFileLoaded: (content: string) => void;
@@ -22,15 +23,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <input
-        type="file"
-        accept=".ged"
-        onChange={handleFileChange}
-        className="mb-4"
-      />
-      <Button onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}>
-        Upload GEDCOM File
-      </Button>
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+        <Label htmlFor="GEDCOM">Upload GEDCOM File</Label>
+        <Input id="GEDCOM" type="file" onChange={handleFileChange} />
+      </div>
     </div>
   );
 };

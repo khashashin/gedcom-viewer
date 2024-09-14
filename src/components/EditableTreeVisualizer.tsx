@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Tree from 'react-d3-tree';
+import Tree, { CustomNodeElementProps } from 'react-d3-tree';
 import NodeEditModal from './NodeEditModal';
 import { EditableTreeNode } from '@/lib/utils';
 
@@ -56,14 +56,32 @@ const EditableTreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({ data, s
     handleModalClose();
   };
 
-  const renderNode = ({ nodeDatum }: any) => (
-    <g>
-      <circle r="15" onClick={() => handleNodeClick(nodeDatum)} />
-      <text fill="black" strokeWidth="1" x="20">
-        {nodeDatum.name}
-      </text>
-    </g>
-  );
+  const renderNode = (rd3tProps: CustomNodeElementProps) => {
+    const nodeDatum = rd3tProps.nodeDatum as EditableTreeNode;
+
+    // Determine the image based on gender
+    let imageHref = '/silhouette_unknown.webp'; // Default image for unknown gender
+    if (nodeDatum.gender === 'M') {
+      imageHref = '/silhouette_men.webp';
+    } else if (nodeDatum.gender === 'F') {
+      imageHref = '/silhouette_women.webp';
+    }
+
+    return (
+      <g onClick={() => handleNodeClick(nodeDatum)}>
+        <image
+          href={imageHref}
+          x={-25}
+          y={-25}
+          width={50}
+          height={50}
+        />
+        <text fill="black" strokeWidth="1" x="0" y="40" textAnchor="middle">
+          {nodeDatum.name}
+        </text>
+      </g>
+    );
+  };
 
   return (
     <div
