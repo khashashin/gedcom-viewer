@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Tree from 'react-d3-tree';
 import NodeEditModal from './NodeEditModal';
 import { EditableTreeNode } from '@/lib/utils';
@@ -11,6 +11,21 @@ interface EditableTreeVisualizerProps {
 const EditableTreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({ data, setData }) => {
   const [selectedNode, setSelectedNode] = useState<EditableTreeNode | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // State to hold the translate values
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const treeContainerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate the center position on mount
+  useEffect(() => {
+    if (treeContainerRef.current) {
+      const dimensions = treeContainerRef.current.getBoundingClientRect();
+      setTranslate({
+        x: dimensions.width / 2,
+        y: dimensions.height / 2,
+      });
+    }
+  }, []);
 
   const handleNodeClick = (nodeDatum: EditableTreeNode) => {
     setSelectedNode(nodeDatum);
@@ -51,8 +66,18 @@ const EditableTreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({ data, s
   );
 
   return (
-    <div style={{ width: '100%', height: '100vh' }}>
-      <Tree data={data} renderCustomNodeElement={renderNode} orientation="vertical" />
+    <div
+      className="w-full bg-gray-100"
+      style={{ height: "calc(100vh - 56px)" }}
+      ref={treeContainerRef}
+    >
+      <Tree
+        data={data}
+        renderCustomNodeElement={renderNode}
+        orientation="vertical"
+        pathFunc="step"
+        translate={translate}
+      />
       {selectedNode && (
         <NodeEditModal
           nodeData={selectedNode}
