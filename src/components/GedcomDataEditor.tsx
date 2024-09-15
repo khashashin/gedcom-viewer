@@ -1,9 +1,15 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { gedcomNodeSchema } from "@/schemas/gedcomNodeSchema";
 import { z } from "zod";
-import { FixedSizeList as List } from "react-window";
+import { VariableSizeList as List } from "react-window";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Save, Download } from "lucide-react";
@@ -15,9 +21,11 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerClose,
+  DrawerDescription,
 } from "@/components/ui/drawer";
 import { saveAs } from "file-saver";
 import VirtualizedRow from "./VirtualizedRow";
+import { useGedcomNodeField } from "@/providers/GedcomNodeFieldProvider";
 
 const formSchema = z.object({
   nodes: z.array(gedcomNodeSchema),
@@ -32,6 +40,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
   gedcomData,
   onDataChange,
 }) => {
+  const { expandedItems, expandedHeights, listRef } = useGedcomNodeField();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,67 +51,57 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
 
   const { control, handleSubmit } = form;
 
-  const watchedNodes = useWatch({
-    control,
-    name: "nodes",
-  });
-
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    onDataChange(watchedNodes);
-  }, [watchedNodes, onDataChange]);
-
-  const listRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [listHeight, setListHeight] = useState(0);
 
   useEffect(() => {
-    console.log("List height changed:", listHeight);
-  }, [listHeight]);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (listRef.current) {
-        console.log(
-          "listRef.current.clientHeight:",
-          listRef.current.clientHeight,
-        );
-        setListHeight(listRef.current.clientHeight);
-      } else {
-        console.log("listRef.current is null");
+    const updateListHeight = () => {
+      if (containerRef.current) {
+        setListHeight(containerRef.current.clientHeight);
       }
     };
 
-    if (isDrawerOpen) {
-      // Delay the update to ensure the DOM is rendered
-      setTimeout(() => {
-        updateHeight();
-      }, 0);
+    // Set up a MutationObserver to detect changes in the drawer content
+    const observer = new MutationObserver(() => {
+      updateListHeight();
+    });
 
-      window.addEventListener("resize", updateHeight);
-    } else {
-      window.removeEventListener("resize", updateHeight);
+    if (isDrawerOpen) {
+      // Update the height when the drawer is opened
+      updateListHeight();
+      if (containerRef.current) {
+        observer.observe(containerRef.current, {
+          childList: true,
+          subtree: true,
+        });
+      }
+
+      window.addEventListener("resize", updateListHeight);
     }
 
+    updateListHeight();
+
     return () => {
-      window.removeEventListener("resize", updateHeight);
+      observer.disconnect();
+      window.removeEventListener("resize", updateListHeight);
     };
   }, [isDrawerOpen]);
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "nodes",
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: "nodes" });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log("Form submitted:", data);
-  };
+  const onSubmit = useCallback(
+    (data: z.infer<typeof formSchema>) => {
+      onDataChange(data.nodes);
+    },
+    [onDataChange],
+  );
 
-  const handleDownload = () => {
-    const gedcomString = exportGedcomData(watchedNodes);
+  const handleDownload = useCallback((data: z.infer<typeof formSchema>) => {
+    const gedcomString = exportGedcomData(data.nodes);
     const blob = new Blob([gedcomString], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "edited_data.ged");
-  };
+  }, []);
 
   const itemData = useMemo(
     () => ({
@@ -113,6 +112,22 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
     [fields, control, remove],
   );
 
+  useEffect(() => {
+    console.log("Fields:", fields);
+    console.log("listHeight:", listHeight);
+  }, [fields, listHeight]);
+
+  const getItemSize = useCallback(
+    (index: number) => {
+      const key = `nodes.${index}`;
+      const defaultHeight = 80;
+      return expandedItems[key]
+        ? expandedHeights[key] || defaultHeight
+        : defaultHeight;
+    },
+    [expandedItems, expandedHeights],
+  );
+
   return (
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
       <DrawerTrigger asChild>
@@ -120,11 +135,15 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
           Open Editor
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-screen bg-white rounded-b-lg">
+      <DrawerContent
+        className="h-screen bg-white rounded-b-lg"
+        aria-describedby="modal-description"
+      >
         <DrawerHeader>
           <DrawerClose />
           <div className="flex justify-between items-center w-full">
             <DrawerTitle>Edit GEDCOM Data</DrawerTitle>
+            <DrawerDescription />
             <div className="flex items-center space-x-2">
               <Button
                 type="submit"
@@ -136,7 +155,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
               </Button>
               <Button
                 variant="ghost"
-                onClick={handleDownload}
+                onClick={() => handleDownload(form.getValues())}
                 type="button"
                 size="icon"
                 aria-label="Export GEDCOM"
@@ -152,16 +171,19 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
               onSubmit={handleSubmit(onSubmit)}
               className="flex-1 flex flex-col space-y-4"
             >
-              <div className="flex-1 overflow-auto" ref={listRef}>
+              <div className="flex-1 overflow-auto" ref={containerRef}>
                 {listHeight > 0 && (
                   <List
+                    ref={listRef}
                     height={listHeight}
                     itemCount={fields.length}
-                    itemSize={70}
+                    itemSize={getItemSize}
                     width={"100%"}
                     itemData={itemData}
                   >
-                    {VirtualizedRow}
+                    {({ index, style, data }) => (
+                      <VirtualizedRow index={index} style={style} data={data} />
+                    )}
                   </List>
                 )}
               </div>
@@ -189,4 +211,4 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
   );
 };
 
-export default GedcomDataEditor;
+export default React.memo(GedcomDataEditor);

@@ -9,25 +9,34 @@ import {
 import TreeVisualizer from "./TreeVisualizer.tsx";
 import { debounce } from "lodash";
 import GedcomDataEditor from "./GedcomDataEditor";
+import { GedcomNodeFieldProvider } from "@/providers/GedcomNodeFieldProvider.tsx";
 
 const EditableView: React.FC = () => {
   const [gedcomData, setGedcomData] = useState<GedcomNode[] | null>(null);
   const [treeData, setTreeData] = useState<TreeNode | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  const handleFileLoaded = (content: string) => {
+  const handleFileLoaded = useCallback((content: string) => {
     const gedcomNodes = parseGedcom(content);
     setGedcomData(gedcomNodes);
     const tree = transformGedcomToEditableTree(gedcomNodes);
     setTreeData(tree);
-  };
+  }, []);
 
   const validateAndUpdateTree = useCallback(
     debounce((updatedData: GedcomNode[]) => {
       const errors = validateGedcomData(updatedData);
       if (errors.length === 0) {
         const tree = transformGedcomToEditableTree(updatedData);
-        setTreeData(tree);
+        setTreeData((prevTree) => {
+          // Only update the tree if it has changed
+          const newTree = JSON.stringify(tree);
+          const prevTreeString = JSON.stringify(prevTree);
+          if (newTree !== prevTreeString) {
+            return tree;
+          }
+          return prevTree;
+        });
         setValidationErrors([]);
       } else {
         setValidationErrors(errors);
@@ -36,12 +45,17 @@ const EditableView: React.FC = () => {
     [],
   );
 
-  const handleGedcomDataChange = (updatedData: GedcomNode[]) => {
-    setGedcomData(updatedData);
-    validateAndUpdateTree(updatedData);
-  };
+  const handleGedcomDataChange = useCallback(
+    (updatedData: GedcomNode[]) => {
+      if (JSON.stringify(updatedData) !== JSON.stringify(gedcomData)) {
+        setGedcomData(updatedData);
+        validateAndUpdateTree(updatedData);
+      }
+    },
+    [gedcomData, validateAndUpdateTree],
+  );
 
-  const validateGedcomData = (data: GedcomNode[]): string[] => {
+  const validateGedcomData = useCallback((data: GedcomNode[]): string[] => {
     const errors: string[] = [];
     data.forEach((node, index) => {
       if (node.level < 0) {
@@ -53,7 +67,7 @@ const EditableView: React.FC = () => {
       // more validation rules as needed
     });
     return errors;
-  };
+  }, []);
 
   return (
     <div className="EditableView">
@@ -70,10 +84,12 @@ const EditableView: React.FC = () => {
               </ul>
             </div>
           )}
-          <GedcomDataEditor
-            gedcomData={gedcomData!}
-            onDataChange={handleGedcomDataChange}
-          />
+          <GedcomNodeFieldProvider>
+            <GedcomDataEditor
+              gedcomData={gedcomData!}
+              onDataChange={handleGedcomDataChange}
+            />
+          </GedcomNodeFieldProvider>
           <TreeVisualizer data={treeData} setData={setTreeData} />
         </>
       )}

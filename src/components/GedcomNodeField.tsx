@@ -1,5 +1,4 @@
 import { gedcomNodeSchema } from "@/schemas/gedcomNodeSchema";
-import { useState } from "react";
 import { Control, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -33,30 +32,28 @@ interface GedcomNodeFieldProps {
   index: number;
   fieldName: `nodes${string}`;
   removeNode: () => void;
+  isExpanded: boolean;
+  toggleExpansion: () => void;
 }
 
 const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
   control,
   fieldName,
   removeNode,
+  isExpanded,
+  toggleExpansion,
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: `${fieldName}.children` as `nodes.${string}`,
   });
 
-  const [isExpanded, setIsExpanded] = useState(false);
-
   return (
     <div className="p-4 border rounded-md space-y-4">
       {/* Node Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            onClick={() => setIsExpanded(!isExpanded)}
-            type="button"
-          >
+          <Button variant="ghost" onClick={toggleExpansion} type="button">
             {isExpanded ? "Collapse" : "Expand"}
           </Button>
           <span className="text-sm text-gray-500">
@@ -150,7 +147,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
           />
 
           {/* Children Nodes */}
-          {fields.length > 0 && (
+          {/* {fields.length > 0 && (
             <div className="ml-4">
               {fields.map((childField, childIndex) => (
                 <GedcomNodeField
@@ -162,7 +159,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
                 />
               ))}
             </div>
-          )}
+          )} */}
 
           {/* Add Child Node Button */}
           <Button
