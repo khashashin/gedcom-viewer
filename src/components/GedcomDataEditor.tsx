@@ -4,16 +4,16 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { gedcomNodeSchema } from "@/schemas/gedcomNodeSchema";
-import { z } from "zod";
-import { VariableSizeList as List } from "react-window";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { Save, Download } from "lucide-react";
-import { exportGedcomData } from "@/lib/utils";
+} from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { gedcomNodeSchema } from '@/schemas/gedcomNodeSchema';
+import { z } from 'zod';
+import { VariableSizeList as List } from 'react-window';
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { Save, Download } from 'lucide-react';
+import { exportGedcomData } from '@/lib/utils';
 import {
   Drawer,
   DrawerTrigger,
@@ -22,10 +22,10 @@ import {
   DrawerTitle,
   DrawerClose,
   DrawerDescription,
-} from "@/components/ui/drawer";
-import { saveAs } from "file-saver";
-import VirtualizedRow from "./VirtualizedRow";
-import { useGedcomNodeField } from "@/providers/GedcomNodeFieldProvider";
+} from '@/components/ui/drawer';
+import { saveAs } from 'file-saver';
+import VirtualizedRow from './VirtualizedRow';
+import { useGedcomNodeField } from '@/providers/GedcomNodeFieldProvider';
 
 const formSchema = z.object({
   nodes: z.array(gedcomNodeSchema),
@@ -46,7 +46,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
     defaultValues: {
       nodes: gedcomData,
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const { control, handleSubmit } = form;
@@ -77,30 +77,30 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
         });
       }
 
-      window.addEventListener("resize", updateListHeight);
+      window.addEventListener('resize', updateListHeight);
     }
 
     updateListHeight();
 
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", updateListHeight);
+      window.removeEventListener('resize', updateListHeight);
     };
   }, [isDrawerOpen]);
 
-  const { fields, append, remove } = useFieldArray({ control, name: "nodes" });
+  const { fields, append, remove } = useFieldArray({ control, name: 'nodes' });
 
   const onSubmit = useCallback(
     (data: z.infer<typeof formSchema>) => {
       onDataChange(data.nodes);
     },
-    [onDataChange],
+    [onDataChange]
   );
 
   const handleDownload = useCallback((data: z.infer<typeof formSchema>) => {
     const gedcomString = exportGedcomData(data.nodes);
-    const blob = new Blob([gedcomString], { type: "text/plain;charset=utf-8" });
-    saveAs(blob, "edited_data.ged");
+    const blob = new Blob([gedcomString], { type: 'text/plain;charset=utf-8' });
+    saveAs(blob, 'edited_data.ged');
   }, []);
 
   const itemData = useMemo(
@@ -109,12 +109,12 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
       control,
       removeNode: remove,
     }),
-    [fields, control, remove],
+    [fields, control, remove]
   );
 
   useEffect(() => {
-    console.log("Fields:", fields);
-    console.log("listHeight:", listHeight);
+    console.log('Fields:', fields);
+    console.log('listHeight:', listHeight);
   }, [fields, listHeight]);
 
   const getItemSize = useCallback(
@@ -125,7 +125,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
         ? expandedHeights[key] || defaultHeight
         : defaultHeight;
     },
-    [expandedItems, expandedHeights],
+    [expandedItems, expandedHeights]
   );
 
   return (
@@ -136,7 +136,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
         </Button>
       </DrawerTrigger>
       <DrawerContent
-        className="h-screen bg-white rounded-b-lg"
+        className="h-screen rounded-b-lg"
         aria-describedby="modal-description"
       >
         <DrawerHeader>
@@ -178,7 +178,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
                     height={listHeight}
                     itemCount={fields.length}
                     itemSize={getItemSize}
-                    width={"100%"}
+                    width={'100%'}
                     itemData={itemData}
                   >
                     {({ index, style, data }) => (
@@ -193,9 +193,9 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
                 onClick={() =>
                   append({
                     level: 0,
-                    tag: "",
-                    pointer: "",
-                    data: "",
+                    tag: '',
+                    pointer: '',
+                    data: '',
                     children: [],
                   })
                 }

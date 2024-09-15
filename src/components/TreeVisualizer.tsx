@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
-import Tree, { CustomNodeElementProps } from "react-d3-tree";
-import NodeEditModal from "./NodeEditModal";
-import { TreeNode } from "@/lib/utils";
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Tree, { CustomNodeElementProps } from 'react-d3-tree';
+import NodeEditModal from './NodeEditModal';
+import { TreeNode } from '@/lib/utils';
+import { useSettings } from '@/providers/SettingsProvider';
 
 interface EditableTreeVisualizerProps {
   data: TreeNode;
@@ -12,14 +13,13 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
   data,
   setData,
 }) => {
+  const { settings } = useSettings();
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // State to hold the translate values
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
   const treeContainerRef = useRef<HTMLDivElement>(null);
 
-  // Calculate the center position on mount
   useEffect(() => {
     if (treeContainerRef.current) {
       const dimensions = treeContainerRef.current.getBoundingClientRect();
@@ -41,7 +41,6 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
   };
 
   const handleNodeSave = (updatedNode: TreeNode) => {
-    // Update the tree data with the edited node
     const updateTree = (node: TreeNode): TreeNode => {
       if (node.id === updatedNode.id) {
         return updatedNode;
@@ -59,34 +58,62 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
     handleModalClose();
   };
 
-  const renderNode = (rd3tProps: CustomNodeElementProps) => {
-    const nodeDatum = rd3tProps.nodeDatum as TreeNode;
+  const renderNode = useCallback(
+    (rd3tProps: CustomNodeElementProps) => {
+      const nodeDatum = rd3tProps.nodeDatum as TreeNode;
 
-    // Determine the image based on gender
-    let imageHref = "/silhouette_unknown.webp"; // Default image for unknown gender
-    if (nodeDatum.gender === "M") {
-      imageHref = "/silhouette_men.webp";
-    } else if (nodeDatum.gender === "F") {
-      imageHref = "/silhouette_women.webp";
-    }
+      // Determine the image based on gender
+      let imageHref = '/silhouette_unknown.webp'; // Default image for unknown gender
+      if (nodeDatum.gender === 'M') {
+        imageHref = '/silhouette_men.webp';
+      } else if (nodeDatum.gender === 'F') {
+        imageHref = '/silhouette_women.webp';
+      }
 
-    return (
-      <g onClick={() => handleNodeClick(nodeDatum)}>
-        <image href={imageHref} x={-25} y={-25} width={50} height={50} />
-        <text fill="black" strokeWidth="1" x="0" y="40" textAnchor="middle">
-          {nodeDatum.name}
-        </text>
-      </g>
-    );
-  };
+      const shapeId = `clip-path-${settings.silhouetteForm}-${nodeDatum.id}`;
+
+      return (
+        <g onClick={() => handleNodeClick(nodeDatum)}>
+          <defs>
+            <clipPath id={shapeId}>
+              {settings.silhouetteForm === 'round' && (
+                <circle cx="0" cy="0" r="25" />
+              )}
+              {settings.silhouetteForm === 'square' && (
+                <rect x="-25" y="-25" width="50" height="50" />
+              )}
+              {settings.silhouetteForm === 'oval' && (
+                <ellipse cx="0" cy="0" rx="20" ry="25" />
+              )}
+              {settings.silhouetteForm === 'rhombus' && (
+                <polygon points="0,-25 25,0 0,25 -25,0" />
+              )}
+            </clipPath>
+          </defs>
+          <image
+            href={imageHref}
+            x="-25"
+            y="-25"
+            width="50"
+            height="50"
+            clipPath={`url(#${shapeId})`}
+          />
+          <text fill="black" strokeWidth="1" x="0" y="40" textAnchor="middle">
+            {nodeDatum.name}
+          </text>
+        </g>
+      );
+    },
+    [settings.silhouetteForm]
+  );
 
   return (
-    <div className="w-full bg-gray-100 h-screen" ref={treeContainerRef}>
+    <div className="w-full h-screen" ref={treeContainerRef}>
       <Tree
         data={data}
         renderCustomNodeElement={renderNode}
-        orientation="vertical"
-        pathFunc="step"
+        orientation={settings.orientation}
+        pathFunc={settings.pathFunc}
         translate={translate}
       />
       {selectedNode && (

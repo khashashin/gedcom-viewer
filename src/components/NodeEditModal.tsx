@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { TreeNode } from "@/lib/utils";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { TreeNode } from '@/lib/utils';
 
 interface NodeEditModalProps {
   nodeData: TreeNode;
@@ -43,26 +46,19 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <label className="block">
-            <span className="text-gray-700">Name:</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full border p-2"
-            />
-          </label>
+          <Label htmlFor="node-name">Name:</Label>
+          <Input
+            id="node-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
           {/* Add more fields as necessary */}
           <div className="flex justify-end space-x-2">
-            <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
+            <Button variant="ghost" onClick={onClose}>
               Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              Save
-            </button>
+            </Button>
+            <Button onClick={handleSave}>Save</Button>
           </div>
         </div>
       </DialogContent>

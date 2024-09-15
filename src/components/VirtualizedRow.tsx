@@ -1,9 +1,9 @@
-import { gedcomNodeSchema } from "@/schemas/gedcomNodeSchema";
-import { Control } from "react-hook-form";
-import { z } from "zod";
-import GedcomNodeField from "./GedcomNodeField";
-import { memo, useEffect, useRef } from "react";
-import { useGedcomNodeField } from "@/providers/GedcomNodeFieldProvider";
+import { gedcomNodeSchema } from '@/schemas/gedcomNodeSchema';
+import { Control } from 'react-hook-form';
+import { z } from 'zod';
+import GedcomNodeField from './GedcomNodeField';
+import { memo, useEffect, useRef } from 'react';
+import { useGedcomNodeField } from '@/providers/GedcomNodeFieldProvider';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = z.object({
@@ -64,9 +64,7 @@ const VirtualizedRow: React.FC<VirtualizedRowProps> = memo(
         />
       </div>
     );
-  },
+  }
 );
-
-VirtualizedRow.whyDidYouRender = true;
 
 export default VirtualizedRow;

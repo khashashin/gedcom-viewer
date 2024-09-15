@@ -1,15 +1,15 @@
-import { gedcomNodeSchema } from "@/schemas/gedcomNodeSchema";
-import { Control, useFieldArray } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { gedcomNodeSchema } from '@/schemas/gedcomNodeSchema';
+import { Control, useFieldArray } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -20,7 +20,7 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = z.object({
@@ -54,10 +54,10 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <Button variant="ghost" onClick={toggleExpansion} type="button">
-            {isExpanded ? "Collapse" : "Expand"}
+            {isExpanded ? 'Collapse' : 'Expand'}
           </Button>
-          <span className="text-sm text-gray-500">
-            ({fields.length} {fields.length === 1 ? "child" : "children"})
+          <span className="text-sm">
+            ({fields.length} {fields.length === 1 ? 'child' : 'children'})
           </span>
         </div>
         <AlertDialog>
@@ -167,9 +167,9 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
             onClick={() =>
               append({
                 level: 0,
-                tag: "",
-                pointer: "",
-                data: "",
+                tag: '',
+                pointer: '',
+                data: '',
                 children: [],
               })
             }
