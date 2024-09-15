@@ -3,7 +3,6 @@ import FileUpload from './FileUpload';
 import { parseGedcom, transformGedcomToEditableTree, GedcomNode, EditableTreeNode } from '@/lib/utils';
 import EditableTreeVisualizer from './EditableTreeVisualizer';
 import { debounce } from 'lodash';
-import { saveAs } from 'file-saver';
 import GedcomDataEditor from './GedcomDataEditor';
 
 const EditableView: React.FC = () => {
@@ -51,40 +50,6 @@ const EditableView: React.FC = () => {
     return errors;
   };
 
-  const exportGedcomData = () => {
-    if (gedcomData) {
-      const gedcomString = generateGedcomString(gedcomData);
-      const blob = new Blob([gedcomString], { type: 'text/plain;charset=utf-8' });
-      saveAs(blob, 'edited_data.ged');
-    }
-  };
-
-  const generateGedcomString = (data: GedcomNode[]): string => {
-    let gedcomString = '';
-    data.forEach((node) => {
-      gedcomString += formatGedcomNode(node);
-    });
-    return gedcomString;
-  };
-
-  const formatGedcomNode = (node: GedcomNode, level: number = node.level): string => {
-    let line = `${level}`;
-    if (node.pointer) {
-      line += ` @${node.pointer}@`;
-    }
-    line += ` ${node.tag}`;
-    if (node.data) {
-      line += ` ${node.data}`;
-    }
-    line += '\n';
-    if (node.children) {
-      node.children.forEach((child) => {
-        line += formatGedcomNode(child, child.level);
-      });
-    }
-    return line;
-  };
-
   return (
     <div className="EditableView">
       {!treeData ? (
@@ -100,11 +65,6 @@ const EditableView: React.FC = () => {
               </ul>
             </div>
           )}
-          <div className="flex justify-end mb-2">
-            <button onClick={exportGedcomData} className="px-4 py-2 bg-blue-500 text-white rounded">
-              Export GEDCOM
-            </button>
-          </div>
           <GedcomDataEditor gedcomData={gedcomData!} onDataChange={handleGedcomDataChange} />
           <EditableTreeVisualizer data={treeData} setData={setTreeData} />
         </>
