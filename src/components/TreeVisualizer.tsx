@@ -81,11 +81,7 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
   };
 
   return (
-    <div
-      className="w-full bg-gray-100"
-      style={{ height: "calc(100vh - 56px)" }}
-      ref={treeContainerRef}
-    >
+    <div className="w-full bg-gray-100 h-screen" ref={treeContainerRef}>
       <Tree
         data={data}
         renderCustomNodeElement={renderNode}
