@@ -3,6 +3,7 @@
 ## Overview
 
 The GEDCOM Family Tree Viewer is an open-source project created as an alternative to MyHeritage for visualizing family trees. With MyHeritage no longer offering free export options, this tool aims to provide a comparable family tree visualizer and plans to include additional features. The project allows users to view, edit, and export their family tree data directly in the browser, ensuring privacy and security.
+
 ![Screenshot](./docs/images/screenshot.png)
 
 The project is built using [React](https://reactjs.org/) for the user interface and [Vite](https://vitejs.dev/) as the build tool, providing a fast and efficient development experience. The user interface components are styled and structured using [shadcn/ui](https://ui.shadcn.com/), offering a modern and customizable design.
@@ -46,7 +47,7 @@ Try the live demo [here](https://familytree.khas.app/). Users can upload their G
    ```
 4. Start the project:
    ```bash
-   npm start
+   npm run dev
    ```
 5. Open the project in a web browser:
    ```
