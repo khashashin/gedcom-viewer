@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditableTreeNode } from '@/lib/utils';
+import { EditableTreeNode } from "@/lib/utils";
 
 interface NodeEditModalProps {
   nodeData: EditableTreeNode;
@@ -15,7 +15,12 @@ interface NodeEditModalProps {
   onSave: (updatedNode: EditableTreeNode) => void;
 }
 
-const NodeEditModal: React.FC<NodeEditModalProps> = ({ nodeData, isOpen, onClose, onSave }) => {
+const NodeEditModal: React.FC<NodeEditModalProps> = ({
+  nodeData,
+  isOpen,
+  onClose,
+  onSave,
+}) => {
   const [name, setName] = useState(nodeData.name);
 
   const handleSave = () => {
@@ -24,7 +29,12 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ nodeData, isOpen, onClose
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Node</DialogTitle>
@@ -44,10 +54,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ nodeData, isOpen, onClose
           </label>
           {/* Add more fields as necessary */}
           <div className="flex justify-end space-x-2">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded"
-            >
+            <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
               Cancel
             </button>
             <button

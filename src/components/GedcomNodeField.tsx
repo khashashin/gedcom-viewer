@@ -52,7 +52,11 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
       {/* Node Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)} type="button">
+          <Button
+            variant="ghost"
+            onClick={() => setIsExpanded(!isExpanded)}
+            type="button"
+          >
             {isExpanded ? "Collapse" : "Expand"}
           </Button>
           <span className="text-sm text-gray-500">
@@ -67,9 +71,12 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to remove this node?</AlertDialogTitle>
+              <AlertDialogTitle>
+                Are you sure you want to remove this node?
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete this node and its children.
+                This action cannot be undone. This will permanently delete this
+                node and its children.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

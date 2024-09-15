@@ -1,37 +1,38 @@
-import React, { useState } from 'react';
-import SimpleView from './components/SimpleView';
-import EditableView from './components/EditableView';
-import packageJson from '../package.json';
+import React, { useState } from "react";
+import SimpleView from "./components/SimpleView";
+import EditableView from "./components/EditableView";
+import packageJson from "../package.json";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'simple' | 'editable'>('simple');
+  const [view, setView] = useState<"simple" | "editable">("simple");
+
+  const handleTabChange = (value: string) => {
+    setView(value as "simple" | "editable");
+  };
 
   return (
     <div>
-      <nav className="p-2 bg-gray-400 flex items-center">
-        <div>
-          <button
-            onClick={() => setView('simple')}
-            className={`mr-4 px-4 py-2 rounded ${
-              view === 'simple' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-          >
-            Simple View
-          </button>
-          <button
-            onClick={() => setView('editable')}
-            className={`px-4 py-2 rounded ${
-              view === 'editable' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-          >
-            Editable View
-          </button>
-        </div>
-        <div className="text-sm text-gray-700 mr-4 ml-auto">
-          Version {packageJson.version}
-        </div>
-      </nav>
-      {view === 'simple' ? <SimpleView /> : <EditableView />}
+      <div className="absolute top-0 left-0">
+        <Tabs value={view} onValueChange={handleTabChange}>
+          <TabsList>
+            <TabsTrigger value="simple">Simple View</TabsTrigger>
+            <TabsTrigger value="editable">Editable View</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      <div className="absolute top-0 right-0 text-sm text-gray-700 mr-4">
+        Version {packageJson.version}
+      </div>
+
+      <Tabs value={view} onValueChange={handleTabChange} className="p-4">
+        <TabsContent value="simple">
+          <SimpleView />
+        </TabsContent>
+        <TabsContent value="editable">
+          <EditableView />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

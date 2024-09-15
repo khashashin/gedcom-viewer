@@ -1,9 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import FileUpload from './FileUpload';
-import { parseGedcom, transformGedcomToEditableTree, GedcomNode, EditableTreeNode } from '@/lib/utils';
-import EditableTreeVisualizer from './EditableTreeVisualizer';
-import { debounce } from 'lodash';
-import GedcomDataEditor from './GedcomDataEditor';
+import React, { useState, useCallback } from "react";
+import FileUpload from "./FileUpload";
+import {
+  parseGedcom,
+  transformGedcomToEditableTree,
+  GedcomNode,
+  EditableTreeNode,
+} from "@/lib/utils";
+import EditableTreeVisualizer from "./EditableTreeVisualizer";
+import { debounce } from "lodash";
+import GedcomDataEditor from "./GedcomDataEditor";
 
 const EditableView: React.FC = () => {
   const [gedcomData, setGedcomData] = useState<GedcomNode[] | null>(null);
@@ -28,7 +33,7 @@ const EditableView: React.FC = () => {
         setValidationErrors(errors);
       }
     }, 500),
-    []
+    [],
   );
 
   const handleGedcomDataChange = (updatedData: GedcomNode[]) => {
@@ -65,7 +70,10 @@ const EditableView: React.FC = () => {
               </ul>
             </div>
           )}
-          <GedcomDataEditor gedcomData={gedcomData!} onDataChange={handleGedcomDataChange} />
+          <GedcomDataEditor
+            gedcomData={gedcomData!}
+            onDataChange={handleGedcomDataChange}
+          />
           <EditableTreeVisualizer data={treeData} setData={setTreeData} />
         </>
       )}

@@ -1,15 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Tree, { CustomNodeElementProps } from 'react-d3-tree';
-import NodeEditModal from './NodeEditModal';
-import { EditableTreeNode } from '@/lib/utils';
+import React, { useState, useRef, useEffect } from "react";
+import Tree, { CustomNodeElementProps } from "react-d3-tree";
+import NodeEditModal from "./NodeEditModal";
+import { EditableTreeNode } from "@/lib/utils";
 
 interface EditableTreeVisualizerProps {
   data: EditableTreeNode;
   setData: React.Dispatch<React.SetStateAction<EditableTreeNode | null>>;
 }
 
-const EditableTreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({ data, setData }) => {
-  const [selectedNode, setSelectedNode] = useState<EditableTreeNode | null>(null);
+const EditableTreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
+  data,
+  setData,
+}) => {
+  const [selectedNode, setSelectedNode] = useState<EditableTreeNode | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // State to hold the translate values
@@ -60,22 +65,16 @@ const EditableTreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({ data, s
     const nodeDatum = rd3tProps.nodeDatum as EditableTreeNode;
 
     // Determine the image based on gender
-    let imageHref = '/silhouette_unknown.webp'; // Default image for unknown gender
-    if (nodeDatum.gender === 'M') {
-      imageHref = '/silhouette_men.webp';
-    } else if (nodeDatum.gender === 'F') {
-      imageHref = '/silhouette_women.webp';
+    let imageHref = "/silhouette_unknown.webp"; // Default image for unknown gender
+    if (nodeDatum.gender === "M") {
+      imageHref = "/silhouette_men.webp";
+    } else if (nodeDatum.gender === "F") {
+      imageHref = "/silhouette_women.webp";
     }
 
     return (
       <g onClick={() => handleNodeClick(nodeDatum)}>
-        <image
-          href={imageHref}
-          x={-25}
-          y={-25}
-          width={50}
-          height={50}
-        />
+        <image href={imageHref} x={-25} y={-25} width={50} height={50} />
         <text fill="black" strokeWidth="1" x="0" y="40" textAnchor="middle">
           {nodeDatum.name}
         </text>

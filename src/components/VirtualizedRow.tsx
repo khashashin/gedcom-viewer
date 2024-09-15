@@ -10,7 +10,14 @@ const formSchema = z.object({
 
 interface ItemData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fields: { id: string; level: number; tag: string; pointer: string; data: string; children: any[] }[];
+  fields: {
+    id: string;
+    level: number;
+    tag: string;
+    pointer: string;
+    data: string;
+    children: any[];
+  }[];
   control: Control<z.infer<typeof formSchema>>;
   removeNode: (index: number) => void;
 }

@@ -1,9 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  useForm,
-  useFieldArray,
-  useWatch,
-} from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { gedcomNodeSchema } from "@/schemas/gedcomNodeSchema";
 import { z } from "zod";
@@ -69,7 +65,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
       control,
       removeNode: remove,
     }),
-    [fields, control, remove]
+    [fields, control, remove],
   );
 
   return (

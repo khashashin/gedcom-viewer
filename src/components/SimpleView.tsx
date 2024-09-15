@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import FileUpload from './FileUpload';
-import TreeVisualizer from './TreeVisualizer';
-import { parseGedcom, transformGedcomToTree, TreeNode } from '@/lib/utils';
+import React, { useState } from "react";
+import FileUpload from "./FileUpload";
+import TreeVisualizer from "./TreeVisualizer";
+import { parseGedcom, transformGedcomToTree, TreeNode } from "@/lib/utils";
 
 const SimpleView: React.FC = () => {
   const [treeData, setTreeData] = useState<TreeNode[] | null>(null);
