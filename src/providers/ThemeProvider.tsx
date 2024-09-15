@@ -13,6 +13,7 @@ type ThemeProviderState = {
 const ThemeProviderContext = createContext<ThemeProviderState>({
   theme: defaultSettings.theme,
   setTheme: function (theme: Theme): void {
+    console.log(theme);
     throw new Error('Function not implemented.');
   },
 });
