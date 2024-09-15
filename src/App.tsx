@@ -1,5 +1,5 @@
-import React from 'react';
-import EditableView from '@/components/EditableView';
+import React, { Suspense } from 'react';
+import MainView from '@/components/MainView';
 import packageJson from '../package.json';
 import { GitHubLogoIcon, GearIcon } from '@radix-ui/react-icons';
 
@@ -10,12 +10,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import SettingsForm from '@/components/SettingsForm';
+
+const SettingsForm = React.lazy(() => import('@/components/SettingsForm'));
 
 const App: React.FC = () => {
   return (
     <div>
-      <EditableView />
+      <MainView />
 
       <Sheet>
         <SheetTrigger asChild>
@@ -27,7 +28,9 @@ const App: React.FC = () => {
           <SheetHeader>
             <SheetTitle>Settings</SheetTitle>
           </SheetHeader>
-          <SettingsForm />
+          <Suspense fallback={<div>Loading settings...</div>}>
+            <SettingsForm />
+          </Suspense>
         </SheetContent>
       </Sheet>
 

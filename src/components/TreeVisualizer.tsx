@@ -1,8 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  Suspense,
+} from 'react';
 import Tree, { CustomNodeElementProps } from 'react-d3-tree';
-import NodeEditModal from './NodeEditModal';
 import { TreeNode } from '@/lib/utils';
 import { useSettings } from '@/providers/SettingsProvider';
+
+const NodeEditModal = React.lazy(() => import('./NodeEditModal'));
 
 interface EditableTreeVisualizerProps {
   data: TreeNode;
@@ -117,12 +124,14 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
         translate={translate}
       />
       {selectedNode && (
-        <NodeEditModal
-          nodeData={selectedNode}
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          onSave={handleNodeSave}
-        />
+        <Suspense fallback={'Loading modal...'}>
+          <NodeEditModal
+            nodeData={selectedNode}
+            isOpen={isModalOpen}
+            onClose={handleModalClose}
+            onSave={handleNodeSave}
+          />
+        </Suspense>
       )}
     </div>
   );
