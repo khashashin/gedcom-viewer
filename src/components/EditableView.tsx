@@ -4,15 +4,15 @@ import {
   parseGedcom,
   transformGedcomToEditableTree,
   GedcomNode,
-  EditableTreeNode,
+  TreeNode,
 } from "@/lib/utils";
-import EditableTreeVisualizer from "./EditableTreeVisualizer";
+import TreeVisualizer from "./TreeVisualizer.tsx";
 import { debounce } from "lodash";
 import GedcomDataEditor from "./GedcomDataEditor";
 
 const EditableView: React.FC = () => {
   const [gedcomData, setGedcomData] = useState<GedcomNode[] | null>(null);
-  const [treeData, setTreeData] = useState<EditableTreeNode | null>(null);
+  const [treeData, setTreeData] = useState<TreeNode | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const handleFileLoaded = (content: string) => {
@@ -50,7 +50,7 @@ const EditableView: React.FC = () => {
       if (!node.tag) {
         errors.push(`Node at index ${index} is missing a 'tag' value.`);
       }
-      // Add more validation rules as needed
+      // more validation rules as needed
     });
     return errors;
   };
@@ -74,7 +74,7 @@ const EditableView: React.FC = () => {
             gedcomData={gedcomData!}
             onDataChange={handleGedcomDataChange}
           />
-          <EditableTreeVisualizer data={treeData} setData={setTreeData} />
+          <TreeVisualizer data={treeData} setData={setTreeData} />
         </>
       )}
     </div>

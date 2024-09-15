@@ -69,7 +69,7 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
   );
 
   return (
-    <div>
+    <div className="absolute w-full p-2">
       <div className="flex justify-end mb-4">
         <Button
           variant="secondary"

@@ -6,13 +6,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditableTreeNode } from "@/lib/utils";
+import { TreeNode } from "@/lib/utils";
 
 interface NodeEditModalProps {
-  nodeData: EditableTreeNode;
+  nodeData: TreeNode;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedNode: EditableTreeNode) => void;
+  onSave: (updatedNode: TreeNode) => void;
 }
 
 const NodeEditModal: React.FC<NodeEditModalProps> = ({

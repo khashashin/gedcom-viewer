@@ -55,103 +55,19 @@ export function parseGedcom(gedcomText: string): GedcomNode[] {
 }
 
 export interface TreeNode extends TreeNodeDatum {
+  id: string;
   name: string;
   gender: "M" | "F" | "U";
   attributes?: { [key: string]: string };
   children?: TreeNode[];
 }
 
-export function transformGedcomToTree(gedcomNodes: GedcomNode[]): TreeNode[] {
-  const individuals: { [key: string]: TreeNode } = {};
-  const families: { [key: string]: string[] } = {};
-
-  // Populate individuals and families
-  for (const node of gedcomNodes) {
-    if (node.tag === "INDI") {
-      const nameNode = node.children.find((child) => child.tag === "NAME");
-      const sexNode = node.children.find((child) => child.tag === "SEX");
-      const name = nameNode?.data || "Unnamed";
-      const gender = (sexNode?.data as "M" | "F" | "U") || "U";
-      individuals[node.pointer!] = {
-        name,
-        gender,
-        attributes: {},
-        __rd3t: {
-          id: `node-${nodeIdCounter++}`,
-          depth: 0,
-          collapsed: false,
-        },
-      };
-    } else if (node.tag === "FAM") {
-      const famId = node.pointer!;
-      families[famId] = [];
-      for (const child of node.children) {
-        if (
-          child.tag === "HUSB" ||
-          child.tag === "WIFE" ||
-          child.tag === "CHIL"
-        ) {
-          families[famId].push(child.data!.replace(/@/g, ""));
-        }
-      }
-    }
-  }
-
-  // Build tree starting from a root individual
-  const rootId = Object.keys(individuals)[0];
-
-  const buildTree = (
-    id: string,
-    visitedIds: Set<string> = new Set(),
-  ): TreeNode | null => {
-    if (visitedIds.has(id)) {
-      return null;
-    }
-    visitedIds.add(id);
-
-    const node = individuals[id];
-    const childFamilies = Object.entries(families).filter(([, members]) =>
-      members.includes(id),
-    );
-    const children: TreeNode[] = [];
-
-    for (const [, members] of childFamilies) {
-      const childIds = members.filter((memberId) => memberId !== id);
-      for (const childId of childIds) {
-        if (individuals[childId]) {
-          const childNode = buildTree(childId, visitedIds);
-          if (childNode) {
-            children.push(childNode);
-          }
-        }
-      }
-    }
-
-    if (children.length > 0) {
-      node.children = children;
-    }
-
-    return node;
-  };
-
-  const rootNode = buildTree(rootId);
-  return rootNode ? [rootNode] : [];
-}
-
-export interface EditableTreeNode extends TreeNodeDatum {
-  id: string;
-  name: string;
-  gender: "M" | "F" | "U";
-  attributes?: { [key: string]: string };
-  children?: EditableTreeNode[];
-}
-
 let nodeIdCounter = 0;
 
 export function transformGedcomToEditableTree(
   gedcomNodes: GedcomNode[],
-): EditableTreeNode {
-  const individuals: { [key: string]: EditableTreeNode } = {};
+): TreeNode {
+  const individuals: { [key: string]: TreeNode } = {};
   const families: { [key: string]: string[] } = {};
 
   for (const node of gedcomNodes) {
@@ -192,7 +108,7 @@ export function transformGedcomToEditableTree(
   const buildTree = (
     id: string,
     visitedIds: Set<string> = new Set(),
-  ): EditableTreeNode | null => {
+  ): TreeNode | null => {
     if (visitedIds.has(id)) {
       return null;
     }
@@ -202,7 +118,7 @@ export function transformGedcomToEditableTree(
     const childFamilies = Object.entries(families).filter(([, members]) =>
       members.includes(id),
     );
-    const children: EditableTreeNode[] = [];
+    const children: TreeNode[] = [];
 
     for (const [, members] of childFamilies) {
       const childIds = members.filter((memberId) => memberId !== id);
