@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { gedcomNodeSchema } from "@/schemas/gedcomNodeSchema";
 import { z } from "zod";

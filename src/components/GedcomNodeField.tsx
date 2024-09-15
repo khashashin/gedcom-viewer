@@ -43,7 +43,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
   isExpanded,
   toggleExpansion,
 }) => {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control,
     name: `${fieldName}.children` as `nodes.${string}`,
   });
