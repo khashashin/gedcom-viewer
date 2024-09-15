@@ -31,7 +31,7 @@ const formSchema = z.object({
 interface GedcomNodeFieldProps {
   control: Control<z.infer<typeof formSchema>>;
   index: number;
-  fieldName: string;
+  fieldName: `nodes${string}`;
   removeNode: () => void;
 }
 
@@ -42,7 +42,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `${fieldName}.children`,
+    name: `${fieldName}.children` as `nodes.${string}`,
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -85,7 +85,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
           {/* Level Field */}
           <FormField
             control={control}
-            name={`${fieldName}.level`}
+            name={`${fieldName}.level` as `nodes.${number}.level`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Level</FormLabel>
@@ -100,7 +100,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
           {/* Tag Field */}
           <FormField
             control={control}
-            name={`${fieldName}.tag`}
+            name={`${fieldName}.tag` as `nodes.${number}.tag`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tag</FormLabel>
@@ -115,7 +115,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
           {/* Pointer Field */}
           <FormField
             control={control}
-            name={`${fieldName}.pointer`}
+            name={`${fieldName}.pointer` as `nodes.${number}.pointer`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Pointer</FormLabel>
@@ -130,7 +130,7 @@ const GedcomNodeField: React.FC<GedcomNodeFieldProps> = ({
           {/* Data Field */}
           <FormField
             control={control}
-            name={`${fieldName}.data`}
+            name={`${fieldName}.data` as `nodes.${number}.data`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Data</FormLabel>
