@@ -42,8 +42,14 @@ const VirtualizedRow: React.FC<VirtualizedRowProps> = memo(
 
     useEffect(() => {
       if (rowRef.current) {
-        const newHeight = rowRef.current.getBoundingClientRect().height;
-        updateHeight(key, newHeight);
+        // Use requestAnimationFrame to ensure the DOM has updated
+        // before measuring height
+        requestAnimationFrame(() => {
+          if (rowRef.current) {
+            const newHeight = rowRef.current.getBoundingClientRect().height;
+            updateHeight(key, newHeight);
+          }
+        });
       }
     }, [isExpanded, updateHeight, key]);
 
@@ -52,7 +58,15 @@ const VirtualizedRow: React.FC<VirtualizedRowProps> = memo(
     }
 
     return (
-      <div style={style} ref={rowRef}>
+      <div
+        style={{
+          ...style,
+          // Override height to allow content to determine its own height
+          height: 'auto',
+          minHeight: style.height,
+        }}
+        ref={rowRef}
+      >
         <GedcomNodeField
           key={field.id}
           control={data.control}

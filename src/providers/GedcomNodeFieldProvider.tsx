@@ -4,8 +4,8 @@ import React, {
   useState,
   useCallback,
   useRef,
-} from "react";
-import { VariableSizeList as List } from "react-window";
+} from 'react';
+import { VariableSizeList as List } from 'react-window';
 
 interface GedcomNodeFieldContextType {
   expandedItems: { [key: string]: boolean };
@@ -45,11 +45,13 @@ export const GedcomNodeFieldProvider: React.FC<{
       }
       return prev;
     });
-    if (listRef.current) {
-      const index = Object.keys(expandedHeights).indexOf(key);
-      if (index !== -1) {
-        listRef.current.resetAfterIndex(index);
-      }
+
+    // Extract the index from the key (format: "nodes.X")
+    const match = key.match(/nodes\.(\d+)/);
+    if (match && listRef.current) {
+      const index = parseInt(match[1], 10);
+      // Reset after this index to force recalculation of all items below
+      listRef.current.resetAfterIndex(index);
     }
   }, []);
 
@@ -72,7 +74,7 @@ export const useGedcomNodeField = () => {
   const context = useContext(GedcomNodeFieldContext);
   if (!context) {
     throw new Error(
-      "useGedcomNodeField must be used within a GedcomNodeFieldProvider",
+      'useGedcomNodeField must be used within a GedcomNodeFieldProvider'
     );
   }
   return context;

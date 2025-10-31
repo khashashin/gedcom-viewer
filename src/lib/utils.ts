@@ -86,13 +86,34 @@ export function transformGedcomToTree(
     if (node.tag === 'INDI') {
       const nameNode = node.children.find((child) => child.tag === 'NAME');
       const sexNode = node.children.find((child) => child.tag === 'SEX');
+      const birthNode = node.children.find((child) => child.tag === 'BIRT');
+      const deathNode = node.children.find((child) => child.tag === 'DEAT');
+
       const name = formatGedcomName(nameNode?.data || '') || 'Unnamed';
       const gender = (sexNode?.data as 'M' | 'F' | 'U') || 'U';
+
+      // Extract birth information
+      const birthDate =
+        birthNode?.children?.find((c) => c.tag === 'DATE')?.data || '';
+      const birthPlace =
+        birthNode?.children?.find((c) => c.tag === 'PLAC')?.data || '';
+
+      // Extract death information
+      const deathDate =
+        deathNode?.children?.find((c) => c.tag === 'DATE')?.data || '';
+      const deathPlace =
+        deathNode?.children?.find((c) => c.tag === 'PLAC')?.data || '';
+
       individuals[node.pointer!] = {
         id: `node-${nodeIdCounter++}`,
         name,
         gender,
-        attributes: {},
+        attributes: {
+          birthDate,
+          birthPlace,
+          deathDate,
+          deathPlace,
+        },
         __rd3t: {
           id: `node-${nodeIdCounter}`,
           depth: 0,

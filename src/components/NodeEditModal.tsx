@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { TreeNode } from '@/lib/utils';
 
 interface NodeEditModalProps {
@@ -25,9 +32,43 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({
   onSave,
 }) => {
   const [name, setName] = useState(nodeData.name);
+  const [gender, setGender] = useState<'M' | 'F' | 'U'>(nodeData.gender);
+  const [birthDate, setBirthDate] = useState(
+    nodeData.attributes?.birthDate || ''
+  );
+  const [birthPlace, setBirthPlace] = useState(
+    nodeData.attributes?.birthPlace || ''
+  );
+  const [deathDate, setDeathDate] = useState(
+    nodeData.attributes?.deathDate || ''
+  );
+  const [deathPlace, setDeathPlace] = useState(
+    nodeData.attributes?.deathPlace || ''
+  );
+
+  // Reset form when nodeData changes
+  useEffect(() => {
+    setName(nodeData.name);
+    setGender(nodeData.gender);
+    setBirthDate(nodeData.attributes?.birthDate || '');
+    setBirthPlace(nodeData.attributes?.birthPlace || '');
+    setDeathDate(nodeData.attributes?.deathDate || '');
+    setDeathPlace(nodeData.attributes?.deathPlace || '');
+  }, [nodeData]);
 
   const handleSave = () => {
-    const updatedNode = { ...nodeData, name };
+    const updatedNode: TreeNode = {
+      ...nodeData,
+      name,
+      gender,
+      attributes: {
+        ...nodeData.attributes,
+        birthDate,
+        birthPlace,
+        deathDate,
+        deathPlace,
+      },
+    };
     onSave(updatedNode);
   };
 
@@ -38,27 +79,100 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({
         if (!open) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Node</DialogTitle>
+          <DialogTitle>Edit Person</DialogTitle>
           <DialogDescription>
-            Modify the details of the selected node.
+            Modify the details of the selected person.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Label htmlFor="node-name">Name:</Label>
-          <Input
-            id="node-name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          {/* Add more fields as necessary */}
-          <div className="flex justify-end space-x-2">
+          {/* Name */}
+          <div className="space-y-2">
+            <Label htmlFor="node-name">Name</Label>
+            <Input
+              id="node-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Full name"
+            />
+          </div>
+
+          {/* Gender */}
+          <div className="space-y-2">
+            <Label htmlFor="node-gender">Gender</Label>
+            <Select
+              value={gender}
+              onValueChange={(v) => setGender(v as 'M' | 'F' | 'U')}
+            >
+              <SelectTrigger id="node-gender">
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="M">Male</SelectItem>
+                <SelectItem value="F">Female</SelectItem>
+                <SelectItem value="U">Unknown</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Birth Information */}
+          <div className="space-y-2 border-t pt-4">
+            <h3 className="font-medium">Birth Information</h3>
+            <div className="space-y-2">
+              <Label htmlFor="birth-date">Birth Date</Label>
+              <Input
+                id="birth-date"
+                type="text"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                placeholder="e.g., 1 OCT 1941"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="birth-place">Birth Place</Label>
+              <Input
+                id="birth-place"
+                type="text"
+                value={birthPlace}
+                onChange={(e) => setBirthPlace(e.target.value)}
+                placeholder="e.g., London"
+              />
+            </div>
+          </div>
+
+          {/* Death Information */}
+          <div className="space-y-2 border-t pt-4">
+            <h3 className="font-medium">Death Information</h3>
+            <div className="space-y-2">
+              <Label htmlFor="death-date">Death Date</Label>
+              <Input
+                id="death-date"
+                type="text"
+                value={deathDate}
+                onChange={(e) => setDeathDate(e.target.value)}
+                placeholder="e.g., 20 AUG 2005"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="death-place">Death Place</Label>
+              <Input
+                id="death-place"
+                type="text"
+                value={deathPlace}
+                onChange={(e) => setDeathPlace(e.target.value)}
+                placeholder="e.g., Berlin"
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-2 pt-4">
             <Button variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>Save</Button>
+            <Button onClick={handleSave}>Save Changes</Button>
           </div>
         </div>
       </DialogContent>
