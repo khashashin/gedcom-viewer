@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useCallback,
   Suspense,
+  useMemo,
 } from 'react';
 import Tree, { CustomNodeElementProps } from 'react-d3-tree';
 import { TreeNode } from '@/lib/utils';
@@ -64,6 +65,41 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
     setData((prevData) => (prevData ? updateTree(prevData) : null));
     handleModalClose();
   };
+
+  // Calculate dynamic separation based on name lengths and spouses
+  const separation = useMemo(() => {
+    // Find the longest name in the tree
+    const findMaxLength = (node: TreeNode): number => {
+      let maxLength = node.name?.length || 0;
+
+      // Check spouses if shown
+      if (settings.showSpouses && node.spouses) {
+        const maxSpouseLength = Math.max(...node.spouses.map((s) => s.length));
+        maxLength = Math.max(maxLength, maxSpouseLength);
+      }
+
+      // Check children recursively
+      if (node.children) {
+        const childMax = Math.max(...node.children.map(findMaxLength));
+        maxLength = Math.max(maxLength, childMax);
+      }
+
+      return maxLength;
+    };
+
+    const maxLength = findMaxLength(data);
+
+    // Calculate separation multiplier based on max name length
+    // Base separation of 1, increase by 0.05 for each character over 10
+    const baseSeparation = 1;
+    const additionalSeparation = Math.max(0, (maxLength - 10) * 0.05);
+    const calculatedSeparation = baseSeparation + additionalSeparation;
+
+    return {
+      siblings: calculatedSeparation,
+      nonSiblings: calculatedSeparation * 0.5,
+    };
+  }, [data, settings.showSpouses]);
 
   const renderNode = useCallback(
     (rd3tProps: CustomNodeElementProps) => {
@@ -139,6 +175,8 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
         orientation={settings.orientation}
         pathFunc={settings.pathFunc}
         translate={translate}
+        separation={separation}
+        nodeSize={{ x: 200, y: 200 }}
       />
       {selectedNode && (
         <Suspense fallback={'Loading modal...'}>
