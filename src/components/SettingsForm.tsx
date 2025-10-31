@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -11,8 +11,10 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useTheme } from '@/providers/ThemeProvider';
+import SilhouetteEditor from './SilhouetteEditor';
 
 const SettingsForm: React.FC = () => {
   const {
@@ -23,8 +25,10 @@ const SettingsForm: React.FC = () => {
     setShowSpouses,
     setBackgroundPattern,
     setCustomBackgroundUrl,
+    setCustomSilhouettePath,
   } = useSettings();
   const { theme, setTheme } = useTheme();
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -62,23 +66,35 @@ const SettingsForm: React.FC = () => {
 
       <div className="space-y-2">
         <h3 className="mb-2">Family Tree Settings</h3>
-        <Select
-          onValueChange={setSilhouetteForm}
-          defaultValue={settings.silhouetteForm}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a silhouette form" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Silhouette Form</SelectLabel>
-              <SelectItem value="round">Round</SelectItem>
-              <SelectItem value="square">Square</SelectItem>
-              <SelectItem value="oval">Oval</SelectItem>
-              <SelectItem value="rhombus">Rhombus</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        <div className="space-y-2">
+          <Select
+            onValueChange={setSilhouetteForm}
+            value={settings.silhouetteForm}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a silhouette form" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Silhouette Form</SelectLabel>
+                <SelectItem value="round">Round</SelectItem>
+                <SelectItem value="square">Square</SelectItem>
+                <SelectItem value="oval">Oval</SelectItem>
+                <SelectItem value="rhombus">Rhombus</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {settings.silhouetteForm === 'custom' && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setIsEditorOpen(true)}
+            >
+              Edit Custom Shape
+            </Button>
+          )}
+        </div>
         <Select onValueChange={setPathFunc} defaultValue={settings.pathFunc}>
           <SelectTrigger>
             <SelectValue placeholder="Select a path function" />
@@ -170,6 +186,17 @@ const SettingsForm: React.FC = () => {
           </div>
         )}
       </div>
+
+      <SilhouetteEditor
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        onSave={(path) => {
+          console.log('Saving custom silhouette path:', path);
+          setCustomSilhouettePath(path);
+          setSilhouetteForm('custom');
+        }}
+        initialPath={settings.customSilhouettePath}
+      />
     </div>
   );
 };

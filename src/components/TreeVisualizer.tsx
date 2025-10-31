@@ -26,7 +26,9 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [renderKey, setRenderKey] = useState(0);
   const treeContainerRef = useRef<HTMLDivElement>(null);
+  const prevCustomPath = useRef(settings.customSilhouettePath);
 
   useEffect(() => {
     if (treeContainerRef.current) {
@@ -37,6 +39,21 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
       });
     }
   }, []);
+
+  // Force re-render when custom silhouette path changes
+  useEffect(() => {
+    if (
+      settings.silhouetteForm === 'custom' &&
+      prevCustomPath.current !== settings.customSilhouettePath
+    ) {
+      console.log(
+        'Custom path changed, forcing re-render:',
+        settings.customSilhouettePath
+      );
+      prevCustomPath.current = settings.customSilhouettePath;
+      setRenderKey((prev) => prev + 1);
+    }
+  }, [settings.customSilhouettePath, settings.silhouetteForm]);
 
   const handleNodeClick = (nodeDatum: TreeNode) => {
     setSelectedNode(nodeDatum);
@@ -103,23 +120,37 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
 
       const shapeId = `clip-path-${settings.silhouetteForm}-${nodeDatum.id}`;
 
+      // Determine which clipPath to use
+      let clipPathElement;
+      if (settings.silhouetteForm === 'round') {
+        clipPathElement = <circle cx="0" cy="0" r="25" />;
+      } else if (settings.silhouetteForm === 'square') {
+        clipPathElement = <rect x="-25" y="-25" width="50" height="50" />;
+      } else if (settings.silhouetteForm === 'oval') {
+        clipPathElement = <ellipse cx="0" cy="0" rx="20" ry="25" />;
+      } else if (settings.silhouetteForm === 'rhombus') {
+        clipPathElement = <polygon points="0,-25 25,0 0,25 -25,0" />;
+      } else if (settings.silhouetteForm === 'custom') {
+        // Use custom path if available, otherwise fallback to circle
+        const customPath = settings.customSilhouettePath;
+        console.log('Rendering custom silhouette with path:', customPath);
+        if (customPath && customPath.trim().length > 0) {
+          clipPathElement = <polygon points={customPath} />;
+        } else {
+          console.warn(
+            'Custom silhouette path is empty, using circle fallback'
+          );
+          clipPathElement = <circle cx="0" cy="0" r="25" />;
+        }
+      } else {
+        // Default fallback
+        clipPathElement = <circle cx="0" cy="0" r="25" />;
+      }
+
       return (
         <g onClick={() => handleNodeClick(nodeDatum)}>
           <defs>
-            <clipPath id={shapeId}>
-              {settings.silhouetteForm === 'round' && (
-                <circle cx="0" cy="0" r="25" />
-              )}
-              {settings.silhouetteForm === 'square' && (
-                <rect x="-25" y="-25" width="50" height="50" />
-              )}
-              {settings.silhouetteForm === 'oval' && (
-                <ellipse cx="0" cy="0" rx="20" ry="25" />
-              )}
-              {settings.silhouetteForm === 'rhombus' && (
-                <polygon points="0,-25 25,0 0,25 -25,0" />
-              )}
-            </clipPath>
+            <clipPath id={shapeId}>{clipPathElement}</clipPath>
           </defs>
           <image
             href={imageHref}
@@ -152,7 +183,11 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
         </g>
       );
     },
-    [settings.silhouetteForm, settings.showSpouses]
+    [
+      settings.silhouetteForm,
+      settings.showSpouses,
+      settings.customSilhouettePath,
+    ]
   );
 
   // Get background style based on selected pattern
@@ -249,6 +284,7 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
       style={getBackgroundStyle()}
     >
       <Tree
+        key={`tree-${settings.silhouetteForm}-${renderKey}`}
         data={data}
         renderCustomNodeElement={renderNode}
         orientation={settings.orientation}

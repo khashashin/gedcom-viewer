@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 
 export type Theme = 'dark' | 'light' | 'system';
-type SilhouetteForm = 'round' | 'square' | 'oval' | 'rhombus';
+type SilhouetteForm = 'round' | 'square' | 'oval' | 'rhombus' | 'custom';
 type PathFunc = 'diagonal' | 'elbow' | 'straight' | 'step';
 type Orientation = 'horizontal' | 'vertical';
 
@@ -19,6 +19,7 @@ interface Settings {
   showSpouses: boolean;
   backgroundPattern: string;
   customBackgroundUrl: string;
+  customSilhouettePath: string;
 }
 
 export const defaultSettings: Settings = {
@@ -29,6 +30,7 @@ export const defaultSettings: Settings = {
   showSpouses: true,
   backgroundPattern: 'none',
   customBackgroundUrl: '',
+  customSilhouettePath: '0,-25 25,0 0,25 -25,0', // Default diamond shape
 };
 
 const SettingsContext = createContext<{
@@ -40,6 +42,8 @@ const SettingsContext = createContext<{
   setShowSpouses: (show: boolean) => void;
   setBackgroundPattern: (pattern: string) => void;
   setCustomBackgroundUrl: (url: string) => void;
+  setCustomSilhouettePath: (path: string) => void;
+  setCustomSilhouette: (path: string) => void;
 }>(null!); // Use `null!` because we'll provide the value in the provider
 
 export const useSettings = () => useContext(SettingsContext);
@@ -74,6 +78,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
     updateSettings({ backgroundPattern: pattern });
   const setCustomBackgroundUrl = (url: string) =>
     updateSettings({ customBackgroundUrl: url });
+  const setCustomSilhouettePath = (path: string) =>
+    updateSettings({ customSilhouettePath: path });
+  const setCustomSilhouette = (path: string) =>
+    updateSettings({ customSilhouettePath: path, silhouetteForm: 'custom' });
 
   return (
     <SettingsContext.Provider
@@ -86,6 +94,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
         setShowSpouses,
         setBackgroundPattern,
         setCustomBackgroundUrl,
+        setCustomSilhouettePath,
+        setCustomSilhouette,
       }}
     >
       {children}
