@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { GedcomNode, parseGedcom } from '@/lib/utils';
+import { GedcomNode, parseGedcom, formatGedcomName } from '@/lib/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import {
   Command,
@@ -160,10 +160,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
 
   const handleRootSelection = (value: string) => {
     const selectedIndividual = individuals.find((individual) => {
-      return (
-        individual.children.find((child) => child.tag === 'NAME')?.data ===
-        value
+      const nameNode = individual.children.find(
+        (child) => child.tag === 'NAME'
       );
+      const formattedName = formatGedcomName(nameNode?.data || '');
+      return formattedName === value;
     });
 
     if (selectedIndividual) {
@@ -194,7 +195,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
 
       {individuals.length > 0 && (
         <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="rootPerson">Select Root Person</Label>
+          <div>
+            <Label htmlFor="rootPerson">Select Root Person</Label>
+            <p className="text-xs text-muted-foreground mt-1">
+              We've automatically selected the best root ancestor based on your
+              family tree. You can change this selection if needed.
+            </p>
+          </div>
           <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -204,12 +211,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
                 className="w-full justify-between"
               >
                 {selectedRootId
-                  ? individuals
-                      .find(
-                        (individual) => individual.pointer === selectedRootId
-                      )
-                      ?.children.find((child) => child.tag === 'NAME')?.data ||
-                    'Unnamed'
+                  ? formatGedcomName(
+                      individuals
+                        .find(
+                          (individual) => individual.pointer === selectedRootId
+                        )
+                        ?.children.find((child) => child.tag === 'NAME')
+                        ?.data || ''
+                    ) || 'Unnamed'
                   : 'Select a person'}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -221,10 +230,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
                   <CommandEmpty>No person found.</CommandEmpty>
                   <CommandGroup>
                     {individuals.map((individual) => {
+                      const nameNode = individual.children.find(
+                        (child) => child.tag === 'NAME'
+                      );
                       const name =
-                        individual.children.find(
-                          (child) => child.tag === 'NAME'
-                        )?.data || 'Unnamed';
+                        formatGedcomName(nameNode?.data || '') || 'Unnamed';
                       return (
                         <CommandItem
                           key={individual.pointer}

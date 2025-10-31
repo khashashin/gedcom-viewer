@@ -6,6 +6,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Formats a GEDCOM name by removing the surname delimiters (slashes)
+ * GEDCOM format: "Given Name /Surname/" -> "Given Name Surname"
+ */
+export function formatGedcomName(gedcomName: string): string {
+  if (!gedcomName) return '';
+  return gedcomName.replace(/\//g, '').replace(/\s+/g, ' ').trim();
+}
+
 export interface GedcomNode {
   level: number;
   tag: string;
@@ -77,7 +86,7 @@ export function transformGedcomToTree(
     if (node.tag === 'INDI') {
       const nameNode = node.children.find((child) => child.tag === 'NAME');
       const sexNode = node.children.find((child) => child.tag === 'SEX');
-      const name = nameNode?.data || 'Unnamed';
+      const name = formatGedcomName(nameNode?.data || '') || 'Unnamed';
       const gender = (sexNode?.data as 'M' | 'F' | 'U') || 'U';
       individuals[node.pointer!] = {
         id: `node-${nodeIdCounter++}`,
