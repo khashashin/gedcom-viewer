@@ -31,6 +31,104 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
   );
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
+  const findBestRootPerson = (
+    gedcomNodes: GedcomNode[]
+  ): string | undefined => {
+    // Build a map of all individuals who are children (have parents in the file)
+    const childrenIds = new Set<string>();
+    const individualNodes = gedcomNodes.filter((node) => node.tag === 'INDI');
+
+    // Mark everyone who appears as a child in any family
+    gedcomNodes
+      .filter((node) => node.tag === 'FAM')
+      .forEach((famNode) => {
+        famNode.children.forEach((child) => {
+          if (child.tag === 'CHIL') {
+            const childId = child.data?.replace(/@/g, '');
+            if (childId) {
+              childrenIds.add(childId);
+            }
+          }
+        });
+      });
+
+    // Find root candidates (people with no parents in the file)
+    const rootCandidates = individualNodes.filter(
+      (node) => node.pointer && !childrenIds.has(node.pointer)
+    );
+
+    if (rootCandidates.length === 0) {
+      // Fallback: if everyone has parents, just return the first person
+      return individualNodes[0]?.pointer;
+    }
+
+    // Count ALL descendants recursively for each candidate
+    const countAllDescendants = (
+      personId: string,
+      visited = new Set<string>()
+    ): number => {
+      if (visited.has(personId)) return 0;
+      visited.add(personId);
+
+      let count = 0;
+      // Find all families where this person is a parent
+      gedcomNodes
+        .filter((node) => node.tag === 'FAM')
+        .forEach((famNode) => {
+          const isParent = famNode.children.some(
+            (child) =>
+              (child.tag === 'HUSB' || child.tag === 'WIFE') &&
+              child.data?.replace(/@/g, '') === personId
+          );
+
+          if (isParent) {
+            // Count direct children and their descendants
+            famNode.children.forEach((child) => {
+              if (child.tag === 'CHIL') {
+                const childId = child.data?.replace(/@/g, '');
+                if (childId) {
+                  count += 1 + countAllDescendants(childId, visited);
+                }
+              }
+            });
+          }
+        });
+
+      return count;
+    };
+
+    // Score each root candidate
+    const scoredCandidates = rootCandidates.map((node) => {
+      const descendants = countAllDescendants(node.pointer!);
+      const sexNode = node.children.find((child) => child.tag === 'SEX');
+      const isMale = sexNode?.data === 'M';
+      const birthNode = node.children.find((child) => child.tag === 'BIRT');
+      const birthDateNode = birthNode?.children?.find(
+        (child) => child.tag === 'DATE'
+      );
+      const birthYear = birthDateNode?.data
+        ? parseInt(birthDateNode.data.match(/\d{4}/)?.[0] || '9999')
+        : 9999;
+
+      return {
+        pointer: node.pointer!,
+        descendants,
+        isMale,
+        birthYear,
+        // Scoring: prioritize by descendants, then male, then older birth year
+        score:
+          descendants * 1000 +
+          (isMale ? 100 : 0) -
+          (birthYear < 9999 ? (9999 - birthYear) / 10 : 0),
+      };
+    });
+
+    // Sort by score (highest first)
+    scoredCandidates.sort((a, b) => b.score - a.score);
+
+    return scoredCandidates[0]?.pointer || rootCandidates[0]?.pointer;
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && (file.name.endsWith('.ged') || file.name.endsWith('.gdz'))) {
@@ -49,7 +147,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
         setIndividuals(individualNodes);
 
         if (individualNodes.length > 0) {
-          setSelectedRootId(individualNodes[0].pointer);
+          // Automatically select the best root person
+          const bestRootId = findBestRootPerson(parsedGedcom);
+          setSelectedRootId(bestRootId || individualNodes[0].pointer);
         }
       };
       reader.readAsText(file);
