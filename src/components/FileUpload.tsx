@@ -24,6 +24,7 @@ interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
+  const [allGedcomNodes, setAllGedcomNodes] = useState<GedcomNode[]>([]);
   const [individuals, setIndividuals] = useState<GedcomNode[]>([]);
   const [selectedRootId, setSelectedRootId] = useState<string | undefined>(
     undefined
@@ -38,6 +39,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
         const content = e.target?.result as string;
         const parsedGedcom = parseGedcom(content);
 
+        // Store all nodes (INDI + FAM) for tree building
+        setAllGedcomNodes(parsedGedcom);
+
+        // Filter individuals for the selection dropdown
         const individualNodes = parsedGedcom.filter(
           (node) => node.tag === 'INDI'
         );
@@ -72,7 +77,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
       alert('Please select a root person.');
       return;
     }
-    onFileLoaded(individuals, selectedRootId);
+    onFileLoaded(allGedcomNodes, selectedRootId);
   };
 
   return (
