@@ -8,12 +8,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useTheme } from '@/providers/ThemeProvider';
 
 const SettingsForm: React.FC = () => {
-  const { settings, setSilhouetteForm, setPathFunc, setOrientation } =
-    useSettings();
+  const {
+    settings,
+    setSilhouetteForm,
+    setPathFunc,
+    setOrientation,
+    setShowSpouses,
+  } = useSettings();
   const { theme, setTheme } = useTheme();
 
   return (
@@ -83,6 +90,16 @@ const SettingsForm: React.FC = () => {
             </SelectGroup>
           </SelectContent>
         </Select>
+        <div className="flex items-center justify-between space-x-2">
+          <Label htmlFor="show-spouses" className="flex-1">
+            Show Spouses
+          </Label>
+          <Switch
+            id="show-spouses"
+            checked={settings.showSpouses}
+            onCheckedChange={setShowSpouses}
+          />
+        </div>
       </div>
     </div>
   );

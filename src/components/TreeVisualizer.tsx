@@ -108,10 +108,27 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
           <text fill="black" strokeWidth="1" x="0" y="40" textAnchor="middle">
             {nodeDatum.name}
           </text>
+          {settings.showSpouses && nodeDatum.spouses && (
+            <>
+              {nodeDatum.spouses.map((spouse, idx) => (
+                <text
+                  key={idx}
+                  fill="gray"
+                  strokeWidth="0.5"
+                  x="0"
+                  y={55 + idx * 12}
+                  textAnchor="middle"
+                  fontSize="10"
+                >
+                  {spouse}
+                </text>
+              ))}
+            </>
+          )}
         </g>
       );
     },
-    [settings.silhouetteForm]
+    [settings.silhouetteForm, settings.showSpouses]
   );
 
   return (

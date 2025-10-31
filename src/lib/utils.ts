@@ -67,7 +67,12 @@ export interface TreeNode extends TreeNodeDatum {
   id: string;
   name: string;
   gender: 'M' | 'F' | 'U';
-  attributes?: { [key: string]: string };
+  attributes?: Record<string, string | number | boolean>;
+  spouses?: string[];
+  birthDate?: string;
+  birthPlace?: string;
+  deathDate?: string;
+  deathPlace?: string;
   children?: TreeNode[];
 }
 
@@ -108,12 +113,11 @@ export function transformGedcomToTree(
         id: `node-${nodeIdCounter++}`,
         name,
         gender,
-        attributes: {
-          birthDate,
-          birthPlace,
-          deathDate,
-          deathPlace,
-        },
+        birthDate,
+        birthPlace,
+        deathDate,
+        deathPlace,
+        attributes: {},
         __rd3t: {
           id: `node-${nodeIdCounter}`,
           depth: 0,
@@ -171,17 +175,17 @@ export function transformGedcomToTree(
       }
     }
 
-    const spouseId =
-      parentFamilies.length > 0
-        ? parentFamilies[0][1].husband === id
-          ? parentFamilies[0][1].wife
-          : parentFamilies[0][1].husband
-        : null;
-    if (spouseId && individuals[spouseId]) {
-      node.attributes = {
-        ...node.attributes,
-        spouse: individuals[spouseId].name,
-      };
+    // Collect all spouses from all families
+    const spouses: string[] = [];
+    for (const [, family] of parentFamilies) {
+      const spouseId = family.husband === id ? family.wife : family.husband;
+      if (spouseId && individuals[spouseId]) {
+        spouses.push(individuals[spouseId].name);
+      }
+    }
+
+    if (spouses.length > 0) {
+      node.spouses = spouses;
     }
 
     if (children.length > 0) {

@@ -16,6 +16,7 @@ interface Settings {
   silhouetteForm: SilhouetteForm;
   pathFunc: PathFunc;
   orientation: Orientation;
+  showSpouses: boolean;
 }
 
 export const defaultSettings: Settings = {
@@ -23,6 +24,7 @@ export const defaultSettings: Settings = {
   silhouetteForm: 'round',
   pathFunc: 'diagonal',
   orientation: 'horizontal',
+  showSpouses: true,
 };
 
 const SettingsContext = createContext<{
@@ -31,6 +33,7 @@ const SettingsContext = createContext<{
   setSilhouetteForm: (form: SilhouetteForm) => void;
   setPathFunc: (pathFunc: PathFunc) => void;
   setOrientation: (orientation: Orientation) => void;
+  setShowSpouses: (show: boolean) => void;
 }>(null!); // Use `null!` because we'll provide the value in the provider
 
 export const useSettings = () => useContext(SettingsContext);
@@ -59,6 +62,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
   const setPathFunc = (pathFunc: PathFunc) => updateSettings({ pathFunc });
   const setOrientation = (orientation: Orientation) =>
     updateSettings({ orientation });
+  const setShowSpouses = (show: boolean) =>
+    updateSettings({ showSpouses: show });
 
   return (
     <SettingsContext.Provider
@@ -68,6 +73,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
         setSilhouetteForm,
         setPathFunc,
         setOrientation,
+        setShowSpouses,
       }}
     >
       {children}

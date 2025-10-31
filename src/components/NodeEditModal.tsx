@@ -33,27 +33,19 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({
 }) => {
   const [name, setName] = useState(nodeData.name);
   const [gender, setGender] = useState<'M' | 'F' | 'U'>(nodeData.gender);
-  const [birthDate, setBirthDate] = useState(
-    nodeData.attributes?.birthDate || ''
-  );
-  const [birthPlace, setBirthPlace] = useState(
-    nodeData.attributes?.birthPlace || ''
-  );
-  const [deathDate, setDeathDate] = useState(
-    nodeData.attributes?.deathDate || ''
-  );
-  const [deathPlace, setDeathPlace] = useState(
-    nodeData.attributes?.deathPlace || ''
-  );
+  const [birthDate, setBirthDate] = useState(nodeData.birthDate || '');
+  const [birthPlace, setBirthPlace] = useState(nodeData.birthPlace || '');
+  const [deathDate, setDeathDate] = useState(nodeData.deathDate || '');
+  const [deathPlace, setDeathPlace] = useState(nodeData.deathPlace || '');
 
   // Reset form when nodeData changes
   useEffect(() => {
     setName(nodeData.name);
     setGender(nodeData.gender);
-    setBirthDate(nodeData.attributes?.birthDate || '');
-    setBirthPlace(nodeData.attributes?.birthPlace || '');
-    setDeathDate(nodeData.attributes?.deathDate || '');
-    setDeathPlace(nodeData.attributes?.deathPlace || '');
+    setBirthDate(nodeData.birthDate || '');
+    setBirthPlace(nodeData.birthPlace || '');
+    setDeathDate(nodeData.deathDate || '');
+    setDeathPlace(nodeData.deathPlace || '');
   }, [nodeData]);
 
   const handleSave = () => {
@@ -61,13 +53,10 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({
       ...nodeData,
       name,
       gender,
-      attributes: {
-        ...nodeData.attributes,
-        birthDate,
-        birthPlace,
-        deathDate,
-        deathPlace,
-      },
+      birthDate,
+      birthPlace,
+      deathDate,
+      deathPlace,
     };
     onSave(updatedNode);
   };
