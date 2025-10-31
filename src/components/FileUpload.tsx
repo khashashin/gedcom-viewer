@@ -32,7 +32,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.name.endsWith('.ged')) {
+    if (file && (file.name.endsWith('.ged') || file.name.endsWith('.gdz'))) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
@@ -49,7 +49,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
       };
       reader.readAsText(file);
     } else {
-      alert('Please select a valid GEDCOM (.ged) file.');
+      alert('Please select a valid GEDCOM (.ged or .gdz) file.');
     }
   };
 
@@ -79,7 +79,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileLoaded }) => {
     <div className="flex flex-col items-center justify-center h-screen space-y-4">
       <div className="grid w-full max-w-sm items-center gap-1.5">
         <Label htmlFor="GEDCOM">Upload GEDCOM File</Label>
-        <Input id="GEDCOM" type="file" onChange={handleFileChange} />
+        <Input
+          id="GEDCOM"
+          type="file"
+          accept=".ged,.gdz,application/x-gedcom,text/x-gedcom"
+          onChange={handleFileChange}
+        />
       </div>
 
       {individuals.length > 0 && (
