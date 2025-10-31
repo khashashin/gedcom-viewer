@@ -66,40 +66,28 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
     handleModalClose();
   };
 
-  // Calculate dynamic separation based on name lengths and spouses
+  // Separation object for react-d3-tree (siblings = same parent, nonSiblings = cousins)
   const separation = useMemo(() => {
-    // Find the longest name in the tree
-    const findMaxLength = (node: TreeNode): number => {
-      let maxLength = node.name?.length || 0;
-
-      // Check spouses if shown
-      if (settings.showSpouses && node.spouses) {
-        const maxSpouseLength = Math.max(...node.spouses.map((s) => s.length));
-        maxLength = Math.max(maxLength, maxSpouseLength);
-      }
-
-      // Check children recursively
-      if (node.children) {
-        const childMax = Math.max(...node.children.map(findMaxLength));
-        maxLength = Math.max(maxLength, childMax);
-      }
-
-      return maxLength;
-    };
-
-    const maxLength = findMaxLength(data);
-
-    // Calculate separation multiplier based on max name length
-    // Base separation of 1, increase by 0.05 for each character over 10
-    const baseSeparation = 1;
-    const additionalSeparation = Math.max(0, (maxLength - 10) * 0.05);
-    const calculatedSeparation = baseSeparation + additionalSeparation;
-
     return {
-      siblings: calculatedSeparation,
-      nonSiblings: calculatedSeparation * 0.5,
+      siblings: 1, // Tighter spacing for siblings
+      nonSiblings: 2, // Wider spacing for cousins
     };
-  }, [data, settings.showSpouses]);
+  }, []);
+
+  // nodeSize with padding to prevent text overlap
+  const nodeSize = useMemo(() => {
+    // Base dimensions for node content
+    const nodeWidth = 100; // Width for avatar + name
+    const nodeHeight = 80; // Height for avatar + name
+
+    // Add generous padding to prevent text overlap, especially for leaf nodes
+    const horizontalPadding = settings.showSpouses ? 200 : 150;
+    const verticalPadding = 120;
+
+    return settings.orientation === 'horizontal'
+      ? { x: nodeWidth + horizontalPadding, y: nodeHeight + verticalPadding }
+      : { x: nodeHeight + verticalPadding, y: nodeWidth + horizontalPadding };
+  }, [settings.showSpouses, settings.orientation]);
 
   const renderNode = useCallback(
     (rd3tProps: CustomNodeElementProps) => {
@@ -176,7 +164,7 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
         pathFunc={settings.pathFunc}
         translate={translate}
         separation={separation}
-        nodeSize={{ x: 200, y: 200 }}
+        nodeSize={nodeSize}
       />
       {selectedNode && (
         <Suspense fallback={'Loading modal...'}>
