@@ -7,10 +7,13 @@ import React, {
   useMemo,
 } from 'react';
 import Tree, { CustomNodeElementProps } from 'react-d3-tree';
+import { toPng } from 'html-to-image';
+import { saveAs } from 'file-saver';
 import { TreeNode } from '@/lib/utils';
 import { useSettings } from '@/providers/SettingsProvider';
 
 const NodeEditModal = React.lazy(() => import('./NodeEditModal'));
+const ExportControl = React.lazy(() => import('./ExportControl'));
 
 interface EditableTreeVisualizerProps {
   data: TreeNode;
@@ -81,6 +84,25 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
 
     setData((prevData) => (prevData ? updateTree(prevData) : null));
     handleModalClose();
+  };
+
+  const handleExportPng = () => {
+    if (treeContainerRef.current) {
+      toPng(treeContainerRef.current, {
+        filter: (node) => {
+          // Exclude the export buttons from the capture
+          return !node.classList?.contains('export-control');
+        },
+        pixelRatio: 5,
+        quality: 1.2,
+      }).then((dataUrl) => {
+        saveAs(dataUrl, 'family-tree.png');
+      });
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   // Separation object for react-d3-tree (siblings = same parent, nonSiblings = cousins)
@@ -283,6 +305,9 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
       ref={treeContainerRef}
       style={getBackgroundStyle()}
     >
+      <Suspense fallback={<div>Loading...</div>}>
+        <ExportControl onExportPng={handleExportPng} onPrint={handlePrint} />
+      </Suspense>
       <Tree
         key={`tree-${settings.silhouetteForm}-${renderKey}`}
         data={data}

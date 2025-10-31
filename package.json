@@ -1,7 +1,7 @@
 {
   "name": "gedcom-viewer",
   "private": true,
-  "version": "0.4.21",
+  "version": "0.4.22",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,6 +26,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "file-saver": "^2.0.5",
+    "html-to-image": "^1.11.13",
     "konva": "^10.0.8",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.441.0",
