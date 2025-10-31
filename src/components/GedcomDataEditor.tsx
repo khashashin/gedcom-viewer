@@ -58,7 +58,10 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
   useEffect(() => {
     const updateListHeight = () => {
       if (containerRef.current) {
-        setListHeight(containerRef.current.clientHeight);
+        const height = containerRef.current.clientHeight;
+        if (height > 0) {
+          setListHeight(height);
+        }
       }
     };
 
@@ -68,8 +71,18 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
     });
 
     if (isDrawerOpen) {
-      // Update the height when the drawer is opened
-      updateListHeight();
+      // Use requestAnimationFrame to wait for the drawer animation to complete
+      // and the layout to be fully rendered
+      const updateWithDelay = () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            updateListHeight();
+          });
+        });
+      };
+
+      updateWithDelay();
+
       if (containerRef.current) {
         observer.observe(containerRef.current, {
           childList: true,
@@ -79,8 +92,6 @@ const GedcomDataEditor: React.FC<GedcomDataEditorProps> = ({
 
       window.addEventListener('resize', updateListHeight);
     }
-
-    updateListHeight();
 
     return () => {
       observer.disconnect();
