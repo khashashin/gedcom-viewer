@@ -20,7 +20,7 @@ const App: React.FC = () => {
 
       <Sheet>
         <SheetTrigger asChild>
-          <button className="absolute top-2 left-2 p-2 rounded-full">
+          <button className="absolute top-2 left-2 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border shadow-lg hover:bg-background/90 transition-colors">
             <GearIcon className="w-5 h-5" />
           </button>
         </SheetTrigger>
@@ -34,12 +34,12 @@ const App: React.FC = () => {
         </SheetContent>
       </Sheet>
 
-      <div className="absolute bottom-2 right-2 text-sm flex items-center space-x-2">
+      <div className="absolute bottom-2 right-2 text-sm flex items-center space-x-2 bg-background/80 backdrop-blur-sm border border-border shadow-lg rounded-full px-3 py-1.5">
         <a
           href="https://github.com/khashashin/gedcom-viewer"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center"
+          className="flex items-center hover:opacity-80 transition-opacity"
         >
           <GitHubLogoIcon className="text-xl mr-1" />
         </a>

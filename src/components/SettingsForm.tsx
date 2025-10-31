@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useSettings } from '@/providers/SettingsProvider';
 import { useTheme } from '@/providers/ThemeProvider';
 
@@ -20,8 +21,25 @@ const SettingsForm: React.FC = () => {
     setPathFunc,
     setOrientation,
     setShowSpouses,
+    setBackgroundPattern,
+    setCustomBackgroundUrl,
   } = useSettings();
   const { theme, setTheme } = useTheme();
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setCustomBackgroundUrl(dataUrl);
+        setBackgroundPattern('custom');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('Please select a valid image file.');
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -100,6 +118,57 @@ const SettingsForm: React.FC = () => {
             onCheckedChange={setShowSpouses}
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="mb-2">Background Pattern</h3>
+        <Select
+          onValueChange={setBackgroundPattern}
+          defaultValue={settings.backgroundPattern}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select background pattern" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Geometric Patterns</SelectLabel>
+              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="dots">Dots</SelectItem>
+              <SelectItem value="grid">Grid</SelectItem>
+              <SelectItem value="diagonal">Diagonal Lines</SelectItem>
+              <SelectItem value="hexagon">Hexagon</SelectItem>
+            </SelectGroup>
+            <SelectGroup>
+              <SelectLabel>Paper Styles</SelectLabel>
+              <SelectItem value="vintage-paper">Vintage Paper</SelectItem>
+              <SelectItem value="papyrus">Papyrus</SelectItem>
+              <SelectItem value="parchment">Parchment</SelectItem>
+              <SelectItem value="lined-paper">Lined Paper</SelectItem>
+              <SelectItem value="graph-paper">Graph Paper</SelectItem>
+              <SelectItem value="canvas">Canvas Texture</SelectItem>
+            </SelectGroup>
+            <SelectGroup>
+              <SelectLabel>Custom</SelectLabel>
+              <SelectItem value="custom">Custom (Upload)</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
+        {settings.backgroundPattern === 'custom' && (
+          <div className="space-y-2 mt-2">
+            <Label htmlFor="background-upload">Upload Pattern Image</Label>
+            <Input
+              id="background-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+            />
+            <p className="text-xs text-muted-foreground">
+              Upload a seamless tiling texture (recommended: 256x256px or
+              512x512px)
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

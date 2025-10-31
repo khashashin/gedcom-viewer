@@ -155,8 +155,99 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
     [settings.silhouetteForm, settings.showSpouses]
   );
 
+  // Get background style based on selected pattern
+  const getBackgroundStyle = (): React.CSSProperties => {
+    const pattern = settings.backgroundPattern;
+
+    if (pattern === 'custom' && settings.customBackgroundUrl) {
+      return {
+        backgroundImage: `url(${settings.customBackgroundUrl})`,
+        backgroundRepeat: 'repeat',
+        backgroundSize: 'auto',
+      };
+    }
+
+    // CSS-based patterns
+    switch (pattern) {
+      case 'dots':
+        return {
+          backgroundImage:
+            'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
+        };
+      case 'grid':
+        return {
+          backgroundImage:
+            'linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
+        };
+      case 'diagonal':
+        return {
+          backgroundImage:
+            'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 20px)',
+        };
+      case 'hexagon':
+        return {
+          backgroundImage:
+            'radial-gradient(circle at 50% 50%, rgba(0,0,0,0.05) 3px, transparent 3px), radial-gradient(circle at 0% 50%, rgba(0,0,0,0.05) 3px, transparent 3px), radial-gradient(circle at 100% 50%, rgba(0,0,0,0.05) 3px, transparent 3px)',
+          backgroundSize: '30px 52px',
+          backgroundPosition: '0 0, 0 26px, 15px 13px',
+        };
+
+      // Paper Styles
+      case 'vintage-paper':
+        return {
+          backgroundColor: '#f4f1e8',
+          backgroundImage:
+            'radial-gradient(circle at 20% 50%, rgba(120,100,80,0.03) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(120,100,80,0.03) 0%, transparent 50%), radial-gradient(circle at 40% 20%, rgba(80,70,60,0.02) 0%, transparent 50%)',
+          backgroundSize: '600px 600px, 800px 800px, 500px 500px',
+        };
+      case 'papyrus':
+        return {
+          backgroundColor: '#e8dcc0',
+          backgroundImage:
+            'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139,119,79,0.08) 2px, rgba(139,119,79,0.08) 4px), repeating-linear-gradient(90deg, transparent, transparent 35px, rgba(139,119,79,0.03) 35px, rgba(139,119,79,0.03) 36px)',
+        };
+      case 'parchment':
+        return {
+          backgroundColor: '#f8f4e6',
+          backgroundImage:
+            'radial-gradient(ellipse at center, transparent 0%, rgba(139,119,79,0.1) 100%), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139,119,79,0.02) 2px, rgba(139,119,79,0.02) 3px)',
+          backgroundSize: '100% 100%, 50px 50px',
+        };
+      case 'lined-paper':
+        return {
+          backgroundColor: '#ffffff',
+          backgroundImage:
+            'repeating-linear-gradient(transparent, transparent 29px, #e5e5e5 29px, #e5e5e5 31px), linear-gradient(90deg, #ff6b6b 0px, #ff6b6b 2px, transparent 2px)',
+          backgroundSize: '100% 31px, 100% 100%',
+          backgroundPosition: '0 8px, 0 0',
+        };
+      case 'graph-paper':
+        return {
+          backgroundColor: '#ffffff',
+          backgroundImage:
+            'linear-gradient(rgba(200,200,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(200,200,255,0.3) 1px, transparent 1px), linear-gradient(rgba(150,150,200,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(150,150,200,0.5) 1px, transparent 1px)',
+          backgroundSize: '20px 20px, 20px 20px, 100px 100px, 100px 100px',
+        };
+      case 'canvas':
+        return {
+          backgroundColor: '#faf9f7',
+          backgroundImage:
+            'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 3px), repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 3px)',
+          backgroundSize: '4px 4px',
+        };
+      default:
+        return {};
+    }
+  };
+
   return (
-    <div className="w-full h-screen" ref={treeContainerRef}>
+    <div
+      className="w-full h-screen"
+      ref={treeContainerRef}
+      style={getBackgroundStyle()}
+    >
       <Tree
         data={data}
         renderCustomNodeElement={renderNode}

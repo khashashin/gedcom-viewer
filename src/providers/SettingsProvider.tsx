@@ -17,6 +17,8 @@ interface Settings {
   pathFunc: PathFunc;
   orientation: Orientation;
   showSpouses: boolean;
+  backgroundPattern: string;
+  customBackgroundUrl: string;
 }
 
 export const defaultSettings: Settings = {
@@ -25,6 +27,8 @@ export const defaultSettings: Settings = {
   pathFunc: 'diagonal',
   orientation: 'horizontal',
   showSpouses: true,
+  backgroundPattern: 'none',
+  customBackgroundUrl: '',
 };
 
 const SettingsContext = createContext<{
@@ -34,6 +38,8 @@ const SettingsContext = createContext<{
   setPathFunc: (pathFunc: PathFunc) => void;
   setOrientation: (orientation: Orientation) => void;
   setShowSpouses: (show: boolean) => void;
+  setBackgroundPattern: (pattern: string) => void;
+  setCustomBackgroundUrl: (url: string) => void;
 }>(null!); // Use `null!` because we'll provide the value in the provider
 
 export const useSettings = () => useContext(SettingsContext);
@@ -64,6 +70,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
     updateSettings({ orientation });
   const setShowSpouses = (show: boolean) =>
     updateSettings({ showSpouses: show });
+  const setBackgroundPattern = (pattern: string) =>
+    updateSettings({ backgroundPattern: pattern });
+  const setCustomBackgroundUrl = (url: string) =>
+    updateSettings({ customBackgroundUrl: url });
 
   return (
     <SettingsContext.Provider
@@ -74,6 +84,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
         setPathFunc,
         setOrientation,
         setShowSpouses,
+        setBackgroundPattern,
+        setCustomBackgroundUrl,
       }}
     >
       {children}
