@@ -121,7 +121,7 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
 
     // Add generous padding to prevent text overlap, especially for leaf nodes
     const horizontalPadding = settings.showSpouses ? 200 : 150;
-    const verticalPadding = 120;
+    const verticalPadding = 250; // Increased to prevent long names from overlapping
 
     return settings.orientation === 'horizontal'
       ? { x: nodeWidth + horizontalPadding, y: nodeHeight + verticalPadding }
@@ -299,6 +299,115 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
     }
   };
 
+  /**
+   * Custom path function to prevent lines from intersecting with text
+   * Calculates the height of the node content (Avatar + Name + Spouses)
+   * and starts the path from below that content.
+   */
+  const customPathFunc = (linkTarget: any, linkSource: any) => {
+    // console.log('customPathFunc', { linkSource, linkTarget });
+
+    let source = linkSource;
+    let target = linkTarget;
+
+    // Handle case where first argument contains both source and target (d3 style)
+    if (linkTarget && linkTarget.source && linkTarget.target) {
+      source = linkTarget.source;
+      target = linkTarget.target;
+    }
+
+    // Safety check for coordinates
+    if (
+      !source ||
+      typeof source.x !== 'number' ||
+      typeof source.y !== 'number' ||
+      !target ||
+      typeof target.x !== 'number' ||
+      typeof target.y !== 'number'
+    ) {
+      // console.warn('Invalid link coordinates', { source, target });
+      return '';
+    }
+
+    const sourceNode = source && source.data ? (source.data as TreeNode) : null;
+
+    // Calculate the vertical offset based on content
+    const baseHeight = 60; // Avatar (25 radius) + Name text (~35)
+
+    let spouseHeight = 0;
+    if (
+      sourceNode &&
+      settings.showSpouses &&
+      sourceNode.spouses &&
+      sourceNode.spouses.length > 0
+    ) {
+      // 12px per spouse approx (fontSize 10 + padding)
+      spouseHeight = sourceNode.spouses.length * 12 + 5;
+    }
+
+    const totalHeight = baseHeight + spouseHeight;
+    const textWidth = 80; // Approximate half-width of text block for horizontal clearance
+
+    // React-d3-tree swaps x and y internally for horizontal layout
+    // We need to account for this when calculating our custom path
+
+    let realSx = source.x;
+    let realSy = source.y;
+    let realTx = target.x;
+    let realTy = target.y;
+
+    // In horizontal mode, x and y are inverted in the data relative to the screen
+    if (settings.orientation === 'horizontal') {
+      realSx = source.y;
+      realSy = source.x;
+      realTx = target.y;
+      realTy = target.x;
+    }
+
+    // Determine start point based on orientation
+    let startX = realSx;
+    let startY = realSy;
+
+    if (settings.orientation === 'vertical') {
+      startY = realSy + totalHeight;
+    } else {
+      // Horizontal: Shift start X to the right to clear the text block width
+      // Text is centered, so we need to clear half the width
+      startX = realSx + textWidth;
+    }
+
+    const sx = startX;
+    const sy = startY;
+    const tx = realTx;
+    const ty = realTy;
+
+    // Generate path based on selected style, but using adjusted start point
+    const pathType = settings.pathFunc;
+
+    if (pathType === 'step' || pathType === 'elbow') {
+      if (settings.orientation === 'vertical') {
+        // Vertical Step: Down -> Horizontal -> Down
+        const midY = (sy + ty) / 2;
+        return `M${sx},${sy} V${midY} H${tx} V${ty}`;
+      } else {
+        // Horizontal Step: Right -> Vertical -> Right
+        const midX = (sx + tx) / 2;
+        return `M${sx},${sy} H${midX} V${ty} H${tx}`;
+      }
+    } else if (pathType === 'straight') {
+      return `M${sx},${sy} L${tx},${ty}`;
+    } else {
+      // Default / Diagonal (Bezier)
+      if (settings.orientation === 'vertical') {
+        const midY = (sy + ty) / 2;
+        return `M${sx},${sy} C${sx},${midY} ${tx},${midY} ${tx},${ty}`;
+      } else {
+        const midX = (sx + tx) / 2;
+        return `M${sx},${sy} C${midX},${sy} ${midX},${ty} ${tx},${ty}`;
+      }
+    }
+  };
+
   return (
     <div
       className="w-full h-screen"
@@ -313,7 +422,7 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
         data={data}
         renderCustomNodeElement={renderNode}
         orientation={settings.orientation}
-        pathFunc={settings.pathFunc}
+        pathFunc={customPathFunc}
         translate={translate}
         separation={separation}
         nodeSize={nodeSize}

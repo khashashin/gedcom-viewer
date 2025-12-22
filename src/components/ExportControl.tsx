@@ -17,18 +17,18 @@ const PrinterIcon = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <rect width="15" height="15" fill="white" />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M4.5 3C4.5 2.44772 4.94772 2 5.5 2H9.5C10.0523 2 10.5 2.44772 10.5 3V4.5H12C12.5523 4.5 13 4.94772 13 5.5V10.5C13 11.0523 12.5523 11.5 12 11.5H11V10.5H12V5.5H9.5H5.5H3V10.5H4V11.5H3C2.44772 11.5 2 11.0523 2 10.5V5.5C2 4.94772 2.44772 4.5 3 4.5H4.5V3ZM9.5 3V4.5H5.5V3H9.5Z"
       fill="black"
     />
     <path
       d="M4 9C4 8.72386 4.22386 8.5 4.5 8.5H10.5C10.7761 8.5 11 8.72386 11 9V12C11 12.2761 10.7761 12.5 10.5 12.5H4.5C4.22386 12.5 4 12.2761 4 12V9Z"
       stroke="black"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
-    <path d="M9 10.5L6 10.5" stroke="black" stroke-linecap="round" />
+    <path d="M9 10.5L6 10.5" stroke="black" strokeLinecap="round" />
   </svg>
 );
 
