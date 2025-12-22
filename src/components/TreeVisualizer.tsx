@@ -105,28 +105,70 @@ const TreeVisualizer: React.FC<EditableTreeVisualizerProps> = ({
     window.print();
   };
 
-  // Separation object for react-d3-tree (siblings = same parent, nonSiblings = cousins)
+  // Calculate maximum text width in the tree to optimize spacing
+  const maxNodeWidth = useMemo(() => {
+    let maxLen = 0;
+
+    const traverse = (node: TreeNode) => {
+      if (!node) return;
+
+      // Check node name length
+      if (node.name) {
+        maxLen = Math.max(maxLen, node.name.length);
+      }
+
+      // Check spouses length
+      if (settings.showSpouses && node.spouses) {
+        node.spouses.forEach((s) => (maxLen = Math.max(maxLen, s.length)));
+      }
+
+      // Recurse
+      if (node.children) {
+        node.children.forEach(traverse);
+      }
+    };
+
+    if (data) traverse(data);
+
+    // Estimate pixels: approx 9px per char + buffer
+    return Math.max(150, maxLen * 9 + 5);
+  }, [data, settings.showSpouses]);
+
+  // Separation object for react-d3-tree
   const separation = useMemo(() => {
     return {
-      siblings: 1, // Tighter spacing for siblings
-      nonSiblings: 2, // Wider spacing for cousins
+      siblings: 1,
+      nonSiblings: 2,
     };
   }, []);
 
-  // nodeSize with padding to prevent text overlap
+  // nodeSize calculation using maxNodeWidth
   const nodeSize = useMemo(() => {
-    // Base dimensions for node content
-    const nodeWidth = 100; // Width for avatar + name
-    const nodeHeight = 80; // Height for avatar + name
+    // Dimensions
+    const avatarSize = 80;
+    const verticalGap = 100; // Space between levels (vertical orientation)
 
-    // Add generous padding to prevent text overlap, especially for leaf nodes
-    const horizontalPadding = settings.showSpouses ? 200 : 150;
-    const verticalPadding = 250; // Increased to prevent long names from overlapping
+    if (settings.orientation === 'horizontal') {
+      // Horizontal Orientation:
+      // x = depth spacing (level separation)
+      // y = sibling spacing (node width/height)
 
-    return settings.orientation === 'horizontal'
-      ? { x: nodeWidth + horizontalPadding, y: nodeHeight + verticalPadding }
-      : { x: nodeHeight + verticalPadding, y: nodeWidth + horizontalPadding };
-  }, [settings.showSpouses, settings.orientation]);
+      // We need enough width (x) for the text
+      return {
+        x: maxNodeWidth + 5, // Depth spacing needs to fit the name width
+        y: avatarSize + verticalGap, // Height spacing
+      };
+    } else {
+      // Vertical Orientation:
+      // x = sibling spacing (node width)
+      // y = depth spacing (level separation)
+
+      return {
+        x: maxNodeWidth, // Sibling spacing must fit the text width
+        y: avatarSize + verticalGap,
+      };
+    }
+  }, [settings.orientation, maxNodeWidth]);
 
   const renderNode = useCallback(
     (rd3tProps: CustomNodeElementProps) => {
